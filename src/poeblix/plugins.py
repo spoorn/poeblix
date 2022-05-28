@@ -82,15 +82,17 @@ class BlixWheelBuilder(WheelBuilder):
         from poetry.puzzle import Solver
         from cleo.io.null_io import NullIO
 
-        # Run through poetry's dependency resolver.  Only uses the default `dependencies` in pyproject.toml, not
+        # Run through poetry's dependency resolver.  Only uses the default/main `dependencies` in pyproject.toml, not
         # dev dependencies or other groups.  If we want to support more groups in the wheel file, we can expand on the
         # CLI with more options.
         # See https://github.com/python-poetry/poetry/blob/master/src/poetry/installation/installer.py#L34 for poetry's
         # usage of this
+        # TODO: Add support for adding more groups
+        groups = ["default", "main"]
         from poetry.repositories.installed_repository import InstalledRepository
 
         solver = Solver(
-            self._poetry.package.with_dependency_groups(groups=["default"], only=True),
+            self._poetry.package.with_dependency_groups(groups=groups, only=True),
             pool,
             InstalledRepository.load(self._env),
             locked_repository,
@@ -120,13 +122,24 @@ class BlixWheelBuilder(WheelBuilder):
 
         # TODO: Make using lock file configurable
         logger.info("Adding dependencies from lock file to wheel build")
-        locked_repository = self._locker.locked_repository()
+        # There is currently a bug with poetry 1.2.0b1 where the `category` field in poetry.lock all gets set to "dev"
+        # for all packages.  As per https://github.com/python-poetry/poetry/issues/5702 and
+        # https://github.com/python-poetry/poetry/issues/2280, the `category` field is not accurate and will be removed.
+        # Instead, we will read ALL packages from the locked repo, then during resolve_dependencies, filter based on
+        # dependency group which should be used going forward 1.2.0+
+        locked_repository = self._locker.locked_repository(True)
+        # logger.info(f"locked repo {locked_repository.packages}")
+        # for package in locked_repository.packages:
+        #     logger.info(f"Package {package.__dict__}")
         logger.info("Resolving dependencies using poetry's solver to get rid of unneeded packages")
         ops = self.resolve_dependencies(locked_repository)
+
+        # logger.info(f"dependency groups: {self._poetry.package._dependency_groups}")
 
         logger.info("Adding resolved dependencies to wheel METADATA")
         required_packages_names = [p.pretty_name for p in self._poetry.package.requires]
         requires_dist = self._meta.requires_dist
+        logger.debug(f"Adding to Wheel Requires Dist: {ops}")
         for op in ops:
             dependency_package = op.package
             name = dependency_package.pretty_name

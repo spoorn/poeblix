@@ -1,7 +1,7 @@
 from __future__ import annotations
 
-import zipfile
-from pathlib import Path
+# import zipfile
+# from pathlib import Path
 from typing import Optional, List, Dict, Sequence
 
 # For fixing https://github.com/python-poetry/poetry/issues/5216
@@ -18,10 +18,11 @@ from poetry.repositories import Repository
 from poetry.utils.env import Env
 
 """
-This Plugin introduces a new command `poetry blix` that extends upon the regular `poetry build` command, 
-but allows for building the wheel file using the poetry.lock file and supports adding data_files just like in setup.py:  
+This Plugin introduces a new command `poetry blix` that extends upon the regular `poetry build` command,
+but allows for building the wheel file using the poetry.lock file and supports adding data_files just like in setup.py:
 https://docs.python.org/3/distutils/setupscript.html#installing-additional-files
 """
+
 
 class BlixWheelBuilder(WheelBuilder):
     """
@@ -35,11 +36,21 @@ class BlixWheelBuilder(WheelBuilder):
     Using lock file to build the wheel: https://github.com/python-poetry/poetry/issues/2778
     """
 
-    def __init__(self, poetry: "Poetry", env: Env, locker: Locker, executable: Optional[str] = None, data_files: Optional[List[Dict]] = None) -> None:
+    def __init__(
+        self,
+        poetry: "Poetry",
+        env: Env,
+        locker: Locker,
+        executable: Optional[str] = None,
+        data_files: Optional[List[Dict]] = None,
+    ) -> None:
         super().__init__(poetry, executable=executable)
         self._env = env
         self._locker = locker
         self._data_files = data_files
+
+    def resolve_dependencies(self, locked_repository: Repository) -> Sequence[Operation]:
+        pass
 
 
 class BlixBuildCommand(EnvCommand):

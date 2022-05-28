@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+set -euo pipefail
+set -x
+
+bootstrap() {
+  poetry install
+}
+
+lint() {
+    # pre-commit
+    echo "== Pre-commit hooks =="
+    pre-commit run -v -a
+
+    # flake8
+    flake8 . --config=setup.cfg
+}
+
+all() {
+  lint
+}
+
+set +x
+"$@"

@@ -15,6 +15,7 @@ poetry = "^1.2.0b1"
 [tool.poetry.group.dev.dependencies]
 flake8 = "*"
 pre-commit = "*"
+mypy = "*"
 
 [tool.poetry.plugins."poetry.application.plugin"]
 # This must be the same as the package name due to https://github.com/python-poetry/poetry/pull/5412#issuecomment-1089978391

@@ -5,6 +5,7 @@ from pathlib import Path
 from typing import Optional, List, Dict, Sequence
 
 # For fixing https://github.com/python-poetry/poetry/issues/5216
+from cleo.io.inputs.option import Option
 from packaging.tags import sys_tags  # noqa
 
 from poetry.console.application import Application
@@ -41,10 +42,10 @@ class BlixWheelBuilder(WheelBuilder):
         poetry: "Poetry",
         env: Env,
         locker: Locker,
-        executable: Optional[str] = None,
+        executable: str | Path | None = None,
         data_files: Optional[List[Dict]] = None,
     ) -> None:
-        super().__init__(poetry, executable=executable)
+        super().__init__(poetry, executable=executable)  # type: ignore
         self._env = env
         self._locker = locker
         self._data_files = data_files
@@ -177,7 +178,7 @@ class BlixBuildCommand(EnvCommand):
         "Builds a wheel package with custom data files mimicking data_files in setup.py, and uses the lock file"
     )
 
-    options = []
+    options: List[Option] = []
 
     # Pick up Poetry's WheelBuilder logger
     loggers = ["poetry.core.masonry.builders.wheel"]

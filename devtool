@@ -10,10 +10,16 @@ lint() {
     # pre-commit
     echo "== Pre-commit hooks =="
     pre-commit run -v -a
+    echo ""
 
     # flake8
     echo "== Flake8 =="
     flake8 . --config=setup.cfg
+    echo ""
+
+    # mypy
+    echo "== Mypy =="
+    echo y | mypy --install-types --config-file setup.cfg src/
 }
 
 all() {

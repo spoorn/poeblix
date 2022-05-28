@@ -7,6 +7,7 @@ authors = ["spoorn <spookump@gmail.com>"]
 [tool.poetry.dependencies]
 python = "^3.9"
 nemoize = "^0.1.0"
+pandas = "1.4.2"
 
 [tool.poetry.group.dev.dependencies]
 flake8 = "^4.0.1"

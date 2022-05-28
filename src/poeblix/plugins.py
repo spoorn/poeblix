@@ -173,7 +173,7 @@ class BlixBuildCommand(EnvCommand):
     Our custom build command to use with the poetry CLI via `poetry blix`.
     """
 
-    name = "blix"
+    name = "blixbuild"
     description = (
         "Builds a wheel package with custom data files mimicking data_files in setup.py, and uses the lock file"
     )
@@ -190,17 +190,14 @@ class BlixBuildCommand(EnvCommand):
         # Parse data_files
         from tomlkit.exceptions import NonExistentKey
 
+        data_files = None
         try:
             data_files_config = self.poetry.pyproject.data["tool"]["blix"]["data"]
+            if "data_files" in data_files_config:
+                data_files = data_files_config["data_files"]
+                self.line(f"Adding data_files={data_files}")
         except NonExistentKey as e:
-            from poetry.core.pyproject.exceptions import PyProjectException
-
-            raise PyProjectException(f"[tool.blix.data] section not found in {self.poetry.file}") from e
-
-        data_files = None
-        if "data_files" in data_files_config:
-            data_files = data_files_config["data_files"]
-        self.line(f"Adding data_files={data_files}")
+            self.line(f"[tool.blix.data] section not found in {self.poetry.file}, no data_files to process")
 
         # Create our custom wheel builder
         builder = BlixWheelBuilder(

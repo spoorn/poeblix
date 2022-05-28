@@ -13,7 +13,14 @@ These are not supported in Poetry due to debate in the community: https://github
 
 ```bash
 mkvirtualenv -p python3.9 venv
-poetry install  # installs the plugin in editable mode for easier testing
+# installs the plugin in editable mode for easier testing via `poetry install`
+./devtool bootstrap
+
+# Lint checks
+./devtool lint
+
+# Run all checks
+./devtool all
 ```
 
 **plugins.py** : contains our plugin that adds the `poetry blix` command for building our wheel file

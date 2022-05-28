@@ -12,6 +12,7 @@ lint() {
     pre-commit run -v -a
 
     # flake8
+    echo "== Flake8 =="
     flake8 . --config=setup.cfg
 }
 
@@ -19,5 +20,41 @@ all() {
   lint
 }
 
+local_plugin_add() {
+  # Calls `poetry plugin add` using the wheel file under dist/poeblix*.whl for local testing
+  poetry plugin add $PWD/dist/poeblix*.whl
+}
+
+install_poetry() {
+  if [[ $OSTYPE == 'cygwin'* ]]; then
+    $((Invoke-WebRequest -Uri https://install.python-poetry.org -UseBasicParsing).Content | python -)
+  elif [[ $OSTYPE == 'linux-gnu'* ]] || [[ $OSTYPE == 'darwin'* ]]; then
+    curl -sSL https://install.python-poetry.org | python3 -
+  else
+    echo "Cannot (yet) install poetry for OS "$OSTYPE
+    exit 1
+  fi
+
+  # Update to latest preview version as we require 1.2+ features that are not yet officially released
+  poetry self update --preview
+}
+
+uninstall_poetry() {
+  if [[ $OSTYPE == 'cygwin'* ]]; then
+    $((Invoke-WebRequest -Uri https://install.python-poetry.org -UseBasicParsing).Content | python - --uninstall)
+  elif [[ $OSTYPE == 'linux-gnu'* ]] || [[ $OSTYPE == 'darwin'* ]]; then
+    curl -sSL https://install.python-poetry.org | python3 - --uninstall
+  else
+    echo "Cannot (yet) install poetry for OS "$OSTYPE
+    exit 1
+  fi
+}
+
+reinstall_poetry() {
+  uninstall_poetry
+  install_poetry
+}
+
+# Comment set +x out to show commands run
 set +x
-"$@"
+$@

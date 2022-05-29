@@ -130,7 +130,7 @@ class ValidateWheelPlugin(EnvCommand):
             raise ValueError(f"Path [{path}] does not point to a valid file")
         self.line(f"Validating Requires Dist for wheel [{path}] against pyproject.toml/poetry.lock")
         metadata = pkginfo.get_metadata(path)
-        self.line(f"Wheel Requires Dist: {metadata.requires_dist}")
+        self.line(f"Wheel Requires Dist: {metadata.requires_dist}", verbosity=Verbosity.DEBUG)
         packages = {}
         for package in metadata.requires_dist:
             parsed = re.search(package_regex, package)

@@ -24,7 +24,48 @@ Or install directly from source/wheel, then add with the same above command usin
 
 ## Usage
 
+1. To build your package:
 
+```commandline
+poetry blixbuild
+```
+
+2. Validate a wheel file has the correct dependencies and data_files as specified in pyproject.toml/poetry.lock
+
+```commandline
+poetry blixvalidatewheel <path-to-wheel>
+```
+
+3. Validate a docker container has the correct dependencies in a `pip freeze` as specified in pyproject.toml/poetry.lock
+
+```commandline
+poetry blixvalidatedocker <docker-container-ID>
+```
+
+Here's an example series of commands to start up a temporary docker container using its tag, validate it, then stop the temporary container
+
+```
+# This will output the newly running container id
+docker run --entrypoint=bash -it -d <docker-image-tag>
+poetry blixvalidatedocker <container-id>
+docker stop <container-id>
+```
+
+4. Adding data_files to pyproject.toml to mimic data_files in setup.py:
+
+```yaml
+...
+  
+[tool.blix.data]
+data_files = [
+    { destination = "share/data/", from = [ "data_files/test.txt", "data_files/anotherfile" ] },
+    { destination = "share/data/threes", from = [ "data_files/athirdfile" ] }
+]
+  
+...
+```
+
+data_files should be under the `[tool.blix.data]` category and is a list of objects, each containing the `destination` data folder, and a `from` list of files to add to the destination data folder.
 
 # Development
 

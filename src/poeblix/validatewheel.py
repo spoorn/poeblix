@@ -22,7 +22,11 @@ class ValidateWheelPlugin(EnvCommand):
     """
 
     name = "blixvalidatewheel"
-    description = "Validates a wheel file contains Requires Dist as specified in pyproject.toml and poetry.lock files in the project this command is ran.  This by default validates in both directions, as in it validates the wheel file's Required Dist is specified in the project and vice versa."
+    description = (
+        "Validates a wheel file contains Requires Dist as specified in pyproject.toml and poetry.lock "
+        "files in the project this command is ran.  This by default validates in both directions, as in "
+        "it validates the wheel file's Required Dist is specified in the project and vice versa."
+    )
 
     arguments = [argument("wheelPath", "Wheel file path")]
 
@@ -46,9 +50,15 @@ class ValidateWheelPlugin(EnvCommand):
                 # Parse constraint into an object using poetry's helper
                 wheel_version = parse_constraint(requires_dist[name])
                 if package.constraint.difference(wheel_version).is_any():
-                    raise RuntimeError(f"Wheel file has different version constraints for Package(name={name}, version={wheel_version}) compared to pyproject.toml Package(name={name}, version={package.constraint})")
+                    raise RuntimeError(
+                        f"Wheel file has different version constraints for Package(name={name}, "
+                        f"version={wheel_version}) compared to pyproject.toml Package(name={name}, "
+                        f"version={package.constraint})"
+                    )
         if leftover_pyproject_packages:
-            raise RuntimeError(f"Packages in pyproject.toml are not present in the Wheel file: {leftover_pyproject_packages}")
+            raise RuntimeError(
+                f"Packages in pyproject.toml are not present in the Wheel file: {leftover_pyproject_packages}"
+            )
 
     def _validate_poetry_lock(self, requires_dist: dict, leftover_wheel_packages: set):
         """Validates that dependencies in poetry.lock are exactly reflected in the wheel file's requires_dist"""
@@ -66,7 +76,10 @@ class ValidateWheelPlugin(EnvCommand):
                 wheel_version = parse_constraint(requires_dist[name])
                 if dependency_package.version.difference(wheel_version).is_any():
                     raise RuntimeError(
-                        f"Wheel file has different version constraints for Package(name={name}, version={wheel_version}) compared to poetry.lock Package(name={name}, version={dependency_package.version})")
+                        f"Wheel file has different version constraints for Package(name={name}, "
+                        f"version={wheel_version}) compared to poetry.lock Package(name={name}, "
+                        f"version={dependency_package.version})"
+                    )
         if leftover_lock_packages:
             raise RuntimeError(f"Packages in poetry.lock are not present in the Wheel file: {leftover_lock_packages}")
 
@@ -80,6 +93,8 @@ class ValidateWheelPlugin(EnvCommand):
         packages = {}
         for package in metadata.requires_dist:
             parsed = re.search(package_regex, package)
+            if not parsed:
+                raise ValueError(f"Could not parse Requires Dist package [{package}].  Please submit an Issue!")
             packages[parsed.group(1)] = parsed.group(2)
         self.line(f"Parsed Requires Dist: {packages}", verbosity=Verbosity.DEBUG)
         # Keep track of wheel files we've scanned over to validate wheel does not contain extra dependencies not
@@ -88,5 +103,7 @@ class ValidateWheelPlugin(EnvCommand):
         self._validate_pyproject_toml(packages, leftover_wheel_packages)
         self._validate_poetry_lock(packages, leftover_wheel_packages)
         if leftover_wheel_packages:
-            raise RuntimeError(f"Packages in Wheel file are not present in pyproject.toml/poetry.lock: {leftover_wheel_packages}")
+            raise RuntimeError(
+                f"Packages in Wheel file are not present in pyproject.toml/poetry.lock: {leftover_wheel_packages}"
+            )
         self.line("Success!")

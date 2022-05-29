@@ -1,6 +1,7 @@
 from typing import Sequence
 
 from cleo.io.null_io import NullIO
+
 # For fixing https://github.com/python-poetry/poetry/issues/5216
 from packaging.tags import sys_tags  # noqa
 from poetry.core.poetry import Poetry

@@ -2,20 +2,18 @@ from __future__ import annotations
 
 import zipfile
 from pathlib import Path
-from typing import Optional, List, Dict, Sequence
+from typing import Optional, List, Dict
 
 from cleo.io.inputs.option import Option
+
 # For fixing https://github.com/python-poetry/poetry/issues/5216
 from packaging.tags import sys_tags  # noqa
-
 from poetry.console.application import Application
 from poetry.console.commands.env_command import EnvCommand
 from poetry.core.masonry.builders.wheel import WheelBuilder
 from poetry.core.poetry import Poetry
-from poetry.installation.operations.operation import Operation
 from poetry.packages import Locker
 from poetry.plugins.application_plugin import ApplicationPlugin
-from poetry.repositories import Repository
 from poetry.utils.env import Env
 
 from poeblix.util import util
@@ -163,7 +161,7 @@ class BlixBuildCommand(EnvCommand):
             if "data_files" in data_files_config:
                 data_files = data_files_config["data_files"]
                 self.line(f"Adding data_files={data_files}")
-        except NonExistentKey as e:
+        except NonExistentKey:
             self.line(f"[tool.blix.data] section not found in {self.poetry.file}, no data_files to process")
 
         # Create our custom wheel builder

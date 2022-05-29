@@ -176,8 +176,12 @@ class BlixPlugin(ApplicationPlugin):
         # Custom build command via `poetry blix`
         application.command_loader.register_factory(BlixBuildCommand.name, lambda: BlixBuildCommand())
 
-        # TODO: Add validateplugin
         # Validate Wheel plugin
         from .validatewheel import ValidateWheelPlugin
 
         application.command_loader.register_factory(ValidateWheelPlugin.name, lambda: ValidateWheelPlugin())
+
+        # Validate Docker plugin
+        from .validatedocker import ValidateDockerPlugin
+
+        application.command_loader.register_factory(ValidateDockerPlugin.name, lambda: ValidateDockerPlugin())

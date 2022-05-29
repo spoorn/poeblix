@@ -1,6 +1,6 @@
 import re
 from pathlib import Path
-from typing import List
+from typing import List, Dict
 
 import pkginfo
 from cleo.helpers import argument
@@ -36,7 +36,7 @@ class ValidateWheelPlugin(EnvCommand):
 
     loggers = ["poetry.core.masonry.builders.wheel"]
 
-    def _validate_pyproject_toml(self, requires_dist: dict, leftover_wheel_packages: set):
+    def _validate_pyproject_toml(self, requires_dist: Dict[str, str], leftover_wheel_packages: set):
         """Validates that dependencies in pyproject.toml are exactly reflected in the wheel file's requires_dist"""
         # TODO: Only checks main group
         self.line("Validating against pyproject.toml...")
@@ -60,7 +60,7 @@ class ValidateWheelPlugin(EnvCommand):
                 f"Packages in pyproject.toml are not present in the Wheel file: {leftover_pyproject_packages}"
             )
 
-    def _validate_poetry_lock(self, requires_dist: dict, leftover_wheel_packages: set):
+    def _validate_poetry_lock(self, requires_dist: Dict[str, str], leftover_wheel_packages: set):
         """Validates that dependencies in poetry.lock are exactly reflected in the wheel file's requires_dist"""
         self.line("Validating against poetry.lock...")
         locked_repo = self.poetry.locker.locked_repository(True)
@@ -106,4 +106,4 @@ class ValidateWheelPlugin(EnvCommand):
             raise RuntimeError(
                 f"Packages in Wheel file are not present in pyproject.toml/poetry.lock: {leftover_wheel_packages}"
             )
-        self.line("Success!")
+        self.line("Validation succeeded!")

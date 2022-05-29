@@ -6,6 +6,8 @@ These contain custom poetry plugins that enable functionality not available in t
 
 1. Using the Lock file to build a wheel file with pinned dependencies
 2. Support for data_files (like with setup.py) such as jupyter extensions or font files
+3. Validating a wheel file is consistent with dependencies specified in pyproject.toml/poetry.lock
+4. Validating a docker container's `pip freeze` contains dependencies as specified in pyproject.toml/poetry.lock
 
 These are not supported in Poetry due to debate in the community: https://github.com/python-poetry/poetry/issues/890, https://github.com/python-poetry/poetry/issues/4013, https://github.com/python-poetry/poetry/issues/2778
 
@@ -24,29 +26,35 @@ Or install directly from source/wheel, then add with the same above command usin
 
 ## Usage
 
-1. To build your package:
+1. To build a wheel from your package:
 
 ```commandline
 poetry blixbuild
 ```
 
-2. Validate a wheel file has the correct dependencies and data_files as specified in pyproject.toml/poetry.lock
+2. Validate a wheel file has consistent dependencies and data_files as specified in pyproject.toml/poetry.lock
 
 ```commandline
 poetry blixvalidatewheel <path-to-wheel>
 ```
 
-3. Validate a docker container has the correct dependencies in a `pip freeze` as specified in pyproject.toml/poetry.lock
+_Note: this validates consistency in both directions_
+
+3. Validate a docker container contains dependencies in a `pip freeze` as specified in pyproject.toml/poetry.lock
 
 ```commandline
 poetry blixvalidatedocker <docker-container-ID>
 ```
+
+_Note: this only validates the docker container contains dependencies in the project, but not the other direction_
 
 Here's an example series of commands to start up a temporary docker container using its tag, validate it, then stop the temporary container
 
 ```
 # This will output the newly running container id
 docker run --entrypoint=bash -it -d <docker-image-tag>
+
+# Then validate the running docker container, and stop it when done
 poetry blixvalidatedocker <container-id>
 docker stop <container-id>
 ```
@@ -66,6 +74,14 @@ data_files = [
 ```
 
 data_files should be under the `[tool.blix.data]` category and is a list of objects, each containing the `destination` data folder, and a `from` list of files to add to the destination data folder.
+
+5. For more help on each command, use the --help argument
+
+```commandline
+poetry blixbuild --help
+poetry blixvalidatewheel --help
+poetry blixvalidatedocker --help
+```
 
 # Development
 

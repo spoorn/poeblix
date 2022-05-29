@@ -14,6 +14,14 @@ These are not supported in Poetry due to debate in the community: https://github
 
 # How to Use
 
+### Prerequisite
+
+Poetry Plugins are only supported in 1.2.0+ which, at the moment (5/29/22), can only be installed when using the [new poetry installer](https://python-poetry.org/docs/master/#installation), and updating to the preview version via
+
+```commandline
+poetry self update --preview
+```
+
 ## Installation
 
 You can add the plugin via poetry's CLI:

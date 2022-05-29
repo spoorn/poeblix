@@ -83,6 +83,8 @@ data_files = [
 
 data_files should be under the `[tool.blix.data]` category and is a list of objects, each containing the `destination` data folder, and a `from` list of files to add to the destination data folder.
 
+_Note: the destination is a relative path that installs data to relative to the [installation prefix](https://docs.python.org/3/distutils/setupscript.html#installing-additional-files)_
+
 5. For more help on each command, use the --help argument
 
 ```commandline

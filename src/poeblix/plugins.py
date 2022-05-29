@@ -4,8 +4,8 @@ import zipfile
 from pathlib import Path
 from typing import Optional, List, Dict, Sequence
 
-# For fixing https://github.com/python-poetry/poetry/issues/5216
 from cleo.io.inputs.option import Option
+# For fixing https://github.com/python-poetry/poetry/issues/5216
 from packaging.tags import sys_tags  # noqa
 
 from poetry.console.application import Application
@@ -17,6 +17,8 @@ from poetry.packages import Locker
 from poetry.plugins.application_plugin import ApplicationPlugin
 from poetry.repositories import Repository
 from poetry.utils.env import Env
+
+from poeblix.util import util
 
 """
 This Plugin introduces a new command `poetry blix` that extends upon the regular `poetry build` command,
@@ -62,54 +64,6 @@ class BlixWheelBuilder(WheelBuilder):
 
         return abs_path
 
-    def resolve_dependencies(self, locked_repository: Repository) -> Sequence[Operation]:
-        """
-        This uses poetry's solver to resolve dependencies and filters out packages from the lock file which are not
-        needed, such as packages that are not for our OS environment using markers (e.g. pywin32 is for Windows).
-        """
-        # Making a new repo containing the packages
-        # newly resolved and the ones from the current lock file
-        repo = Repository()
-        for package in locked_repository.packages:
-            if not repo.has_package(package):
-                repo.add_package(package)
-
-        from poetry.repositories import Pool
-
-        pool = Pool(ignore_repository_names=True)
-        pool.add_repository(repo)
-
-        from poetry.puzzle import Solver
-        from cleo.io.null_io import NullIO
-
-        # Run through poetry's dependency resolver.  Only uses the default/main `dependencies` in pyproject.toml, not
-        # dev dependencies or other groups.  If we want to support more groups in the wheel file, we can expand on the
-        # CLI with more options.
-        # See https://github.com/python-poetry/poetry/blob/master/src/poetry/installation/installer.py#L34 for poetry's
-        # usage of this
-        # TODO: Add support for adding more groups
-        groups = ["default", "main"]
-        from poetry.repositories.installed_repository import InstalledRepository
-
-        solver = Solver(
-            self._poetry.package.with_dependency_groups(groups=groups, only=True),
-            pool,
-            InstalledRepository.load(self._env),
-            locked_repository,
-            NullIO(),
-        )
-
-        # Everything is resolved at this point, so we no longer need
-        # to load deferred dependencies (i.e. VCS, URL and path dependencies)
-        solver.provider.load_deferred(False)
-
-        with solver.use_environment(self._env):
-            ops = solver.solve(use_latest=[]).calculate_operations(
-                with_uninstalls=False,
-                synchronize=False,
-            )
-        return ops
-
     def _write_metadata(self, wheel: zipfile.ZipFile) -> None:
         """
         The below code before super()._write_metadata() takes locked dependencies from poetry.lock to add as
@@ -132,7 +86,7 @@ class BlixWheelBuilder(WheelBuilder):
         # for package in locked_repository.packages:
         #     logger.info(f"Package {package.__dict__}")
         logger.info("Resolving dependencies using poetry's solver to get rid of unneeded packages")
-        ops = self.resolve_dependencies(locked_repository)
+        ops = util.resolve_dependencies(self._poetry, self._env, locked_repository)
 
         # logger.info(f"dependency groups: {self._poetry.package._dependency_groups}")
 
@@ -225,3 +179,7 @@ class BlixPlugin(ApplicationPlugin):
         application.command_loader.register_factory(BlixBuildCommand.name, lambda: BlixBuildCommand())
 
         # TODO: Add validateplugin
+        # Validate Wheel plugin
+        from .validatewheel import ValidateWheelPlugin
+
+        application.command_loader.register_factory(ValidateWheelPlugin.name, lambda: ValidateWheelPlugin())

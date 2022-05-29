@@ -1,11 +1,15 @@
 import re
 from pathlib import Path
 from typing import List, Dict
+from zipfile import ZipFile
 
 import pkginfo
 from cleo.helpers import argument
 from cleo.io.inputs.option import Option
 from cleo.io.outputs.output import Verbosity
+
+# For fixing https://github.com/python-poetry/poetry/issues/5216
+from packaging.tags import sys_tags  # noqa
 from poetry.console.commands.env_command import EnvCommand
 from poetry.core.semver.helpers import parse_constraint
 
@@ -13,7 +17,6 @@ from poetry.core.semver.helpers import parse_constraint
 from tomlkit.exceptions import NonExistentKey
 
 from poeblix.util import util
-from zipfile import ZipFile
 
 package_regex = r"(.*) \((.*)\)"
 

@@ -3,6 +3,9 @@ from typing import List
 
 from cleo.helpers import argument
 from cleo.io.inputs.option import Option
+
+# For fixing https://github.com/python-poetry/poetry/issues/5216
+from packaging.tags import sys_tags  # noqa
 from poetry.console.commands.env_command import EnvCommand
 from poetry.core.packages.package import Package
 

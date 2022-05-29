@@ -117,11 +117,9 @@ class BlixWheelBuilder(WheelBuilder):
                         f"Please change it to a relative path"
                     )
 
-                if destination[0] != "/":
-                    raise ValueError(
-                        f"Destination path in data_files [{destination}] should be prefixed with a directory separator "
-                        f"'/'"
-                    )
+                # TODO: Use OS specific separator
+                if destination[-1] != "/":
+                    destination += "/"
 
                 # Note: this assumes destination is suffixed with the directory separator "/"
                 for src in sources:

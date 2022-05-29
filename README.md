@@ -9,6 +9,23 @@ These contain custom poetry plugins that enable functionality not available in t
 
 These are not supported in Poetry due to debate in the community: https://github.com/python-poetry/poetry/issues/890, https://github.com/python-poetry/poetry/issues/4013, https://github.com/python-poetry/poetry/issues/2778
 
+
+# How to Use
+
+## Installation
+
+You can add the plugin via poetry's CLI:
+
+```commandline
+poetry plugin add poeblix
+```
+
+Or install directly from source/wheel, then add with the same above command using the path to the built dist
+
+## Usage
+
+
+
 # Development
 
 ```bash

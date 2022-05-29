@@ -10,7 +10,10 @@ from poetry.console.commands.env_command import EnvCommand
 from poetry.core.semver.helpers import parse_constraint
 
 # e.g. "nemoize (>=0.1.0,<0.2.0)"
+from tomlkit.exceptions import NonExistentKey
+
 from poeblix.util import util
+from zipfile import ZipFile
 
 package_regex = r"(.*) \((.*)\)"
 
@@ -35,6 +38,41 @@ class ValidateWheelPlugin(EnvCommand):
     options: List[Option] = []
 
     loggers = ["poetry.core.masonry.builders.wheel"]
+
+    def _validate_data_files(self, path):
+        """
+        Validates wheel archive contains data_files as specified in pyproject.toml, if exists.
+        """
+        self.line("Validating data_files in wheel file contain those specified in pyproject.toml")
+        try:
+            data_files_config = self.poetry.pyproject.data["tool"]["blix"]["data"]
+            if "data_files" in data_files_config:
+                data_files = data_files_config["data_files"]
+
+                # Get files in wheel
+                wheel = pkginfo.Wheel(path)
+                wheel_files = ZipFile(path).namelist()
+                self.line(f"Wheel files: {wheel_files}", verbosity=Verbosity.DEBUG)
+                data_file_prefix = f"{wheel.name}-{wheel.version}.data/data/"
+
+                for data_file in data_files:
+                    destination = data_file["destination"]
+                    sources = data_file["from"]
+
+                    # TODO: Use OS specific separator
+                    if destination[-1] != "/":
+                        destination += "/"
+
+                    for src in sources:
+                        filename = src.rsplit("/", 1)[1]
+                        data_file_path = data_file_prefix + destination + filename
+
+                        if data_file_path not in wheel_files:
+                            raise RuntimeError(
+                                f"Wheel at [{path}] does not contain expected data_file [{data_file_path}]"
+                            )
+        except NonExistentKey:
+            self.line(f"[tool.blix.data] section not found in {self.poetry.file}, no data_files to validate")
 
     def _validate_pyproject_toml(self, requires_dist: Dict[str, str], leftover_wheel_packages: set):
         """Validates that dependencies in pyproject.toml are exactly reflected in the wheel file's requires_dist"""
@@ -106,4 +144,5 @@ class ValidateWheelPlugin(EnvCommand):
             raise RuntimeError(
                 f"Packages in Wheel file are not present in pyproject.toml/poetry.lock: {leftover_wheel_packages}"
             )
+        self._validate_data_files(path)
         self.line("Validation succeeded!")

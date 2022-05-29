@@ -12,6 +12,13 @@ pandas = "1.4.2"
 [tool.poetry.group.dev.dependencies]
 flake8 = "^4.0.1"
 
+# Example data_files
+[tool.blix.data]
+data_files = [
+    { destination = "share/data/", from = [ "data_files/test.txt", "data_files/anotherfile" ] },
+    { destination = "share/data/threes", from = [ "data_files/athirdfile" ] }
+]
+
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"

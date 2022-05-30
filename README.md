@@ -34,7 +34,7 @@ Or install directly from source/wheel, then add with the same above command usin
 
 ## Usage
 
-1. To build a wheel from your package:
+1. To build a wheel from your package (default uses poetry.lock to pin dependencies in the wheel):
 
 ```commandline
 poetry blixbuild

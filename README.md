@@ -85,6 +85,8 @@ data_files should be under the `[tool.blix.data]` category and is a list of obje
 
 _Note: the destination is a relative path that installs data to relative to the [installation prefix](https://docs.python.org/3/distutils/setupscript.html#installing-additional-files)_
 
+Example: https://github.com/spoorn/poeblix/blob/main/test/positive_cases/happy_case_example/pyproject.toml
+
 5. For more help on each command, use the --help argument
 
 ```commandline

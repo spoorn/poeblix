@@ -77,7 +77,6 @@ class BlixWheelBuilder(WheelBuilder):
         else:
             from poetry.core.packages.dependency import Dependency
 
-            # TODO: Make using lock file configurable
             logger.info("Adding dependencies from lock file to wheel build")
             # There is currently a bug with poetry 1.2.0b1 where the `category` field in poetry.lock all gets set to
             # "dev" for all packages.  As per https://github.com/python-poetry/poetry/issues/5702 and

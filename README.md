@@ -48,12 +48,18 @@ poetry plugin add poeblix==<version>
 
 ```commandline
 poetry blixbuild
+
+# To disable using lock file for building wheel
+poetry blixbuild --no-lock
 ```
 
 2. Validate a wheel file has consistent dependencies and data_files as specified in pyproject.toml/poetry.lock
 
 ```commandline
 poetry blixvalidatewheel <path-to-wheel>
+
+# Disable using lock file for validation
+poetry blixvalidatewheel --no-lock <path-to-wheel>
 ```
 
 _Note: this validates consistency in both directions_
@@ -62,6 +68,9 @@ _Note: this validates consistency in both directions_
 
 ```commandline
 poetry blixvalidatedocker <docker-container-ID>
+
+# Disable using lock file for validation
+poetry blixvalidatedocker --no-lock <docker-container-ID>
 ```
 
 _Note: this only validates the docker container contains dependencies in the project, but not the other direction_

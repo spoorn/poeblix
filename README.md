@@ -32,6 +32,16 @@ poetry plugin add poeblix
 
 Or install directly from source/wheel, then add with the same above command using the path to the built dist
 
+To update the plugin:
+
+```commandline
+# Update to latest
+poetry plugin add poeblix@latest
+
+# Update to specific version
+poetry plugin add poeblix==<version>
+```
+
 ## Usage
 
 1. To build a wheel from your package (default uses poetry.lock to pin dependencies in the wheel):

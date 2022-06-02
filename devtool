@@ -1,4 +1,8 @@
 #!/usr/bin/env bash
+
+# Note: If developing on windows, you might need to run this command to get rid of /r in this script file:
+#   sed -i 's/\r$//' devtool
+
 set -euo pipefail
 set -x
 

@@ -47,18 +47,21 @@ class ValidateWheelPlugin(EnvCommand):
         Validates wheel archive contains data_files as specified in pyproject.toml, if exists.
         """
         self.line("Validating data_files in wheel file contain those specified in pyproject.toml")
+        # Get files in wheel
+        wheel = pkginfo.Wheel(path)
+        wheel_files = ZipFile(path).namelist()
+        self.line(f"Wheel files: {wheel_files}", verbosity=Verbosity.DEBUG)
+        data_file_prefix = f"{wheel.name}-{wheel.version}.data/data/"
+
+        wheel_data_files = [fname for fname in wheel_files if data_file_prefix in fname]
+        self.line(f"Wheel data files: {wheel_data_files}", verbosity=Verbosity.DEBUG)
+
         try:
             data_files_config = self.poetry.pyproject.data["tool"]["blix"]["data"]
             if "data_files" in data_files_config:
                 data_files = data_files_config["data_files"]
 
-                # Get files in wheel
-                wheel = pkginfo.Wheel(path)
-                wheel_files = ZipFile(path).namelist()
-                self.line(f"Wheel files: {wheel_files}", verbosity=Verbosity.DEBUG)
-                data_file_prefix = f"{wheel.name}-{wheel.version}.data/data/"
-
-                for data_file in data_files:
+                for data_file in list(data_files):
                     destination = data_file["destination"]
                     sources = data_file["from"]
 
@@ -70,12 +73,19 @@ class ValidateWheelPlugin(EnvCommand):
                         filename = src.rsplit("/", 1)[1]
                         data_file_path = data_file_prefix + destination + filename
 
-                        if data_file_path not in wheel_files:
+                        if data_file_path not in wheel_data_files:
                             raise RuntimeError(
                                 f"Wheel at [{path}] does not contain expected data_file [{data_file_path}]"
                             )
+                        else:
+                            wheel_data_files.remove(data_file_path)
         except NonExistentKey:
-            self.line(f"[tool.blix.data] section not found in {self.poetry.file}, no data_files to validate")
+            self.line(f"[tool.blix.data] section not found in {self.poetry.file}")
+        # If any wheel data files leftover, raise error
+        if wheel_data_files:
+            raise RuntimeError(
+                f"Wheel at [{path}] contains extraneous data_files not specified in pyproject.toml: {wheel_data_files}"
+            )
 
     def _validate_pyproject_toml(self, requires_dist: Dict[str, str], leftover_wheel_packages: set):
         """Validates that dependencies in pyproject.toml are exactly reflected in the wheel file's requires_dist"""

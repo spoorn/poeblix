@@ -24,6 +24,12 @@ lint() {
 
 all() {
   lint
+  test
+}
+
+test() {
+  # Walkthrough tests
+  cd test && pytest --pspec test_walkthrough.py ; cd -
 }
 
 local_plugin_add() {

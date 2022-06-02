@@ -71,13 +71,13 @@ docker stop <container-id>
 
 ```yaml
 ...
-  
+
 [tool.blix.data]
 data_files = [
     { destination = "share/data/", from = [ "data_files/test.txt", "data_files/anotherfile" ] },
     { destination = "share/data/threes", from = [ "data_files/athirdfile" ] }
 ]
-  
+
 ...
 ```
 
@@ -98,6 +98,7 @@ poetry blixvalidatedocker --help
 # Development
 
 ```bash
+# Make a virtual environment on Python 3.9
 mkvirtualenv -p python3.9 venv
 # installs the plugin in editable mode for easier testing via `poetry install`
 ./devtool bootstrap
@@ -105,10 +106,15 @@ mkvirtualenv -p python3.9 venv
 # Lint checks
 ./devtool lint
 
-# Run all checks
+# Tests
+./devtool test
+
+# Run all checks and tests
 ./devtool all
 ```
 
-**plugins.py** : contains our plugin that adds the `poetry blix` command for building our wheel file
+**plugins.py** : contains our plugin that adds the `poetry blixbuild` command for building our wheel file
 
-**validateplugin.py** : adds a command that validates a docker file contains dependencies as specified in pyproject.toml and poetry.lock.  This does *NOT* validate that they are exactly matching, but rather that all dependencies in pyproject.toml/poetry.lock exist in the docker container on the correct versions.  The docker image may contain more extra dependencies
+**validatewheel.py**: adds a `poetry blixvalidatewheel` command that validates a wheel file contains the Required Dist as specified in pyproject.toml/poetry.lock
+
+**validatedocker.py** : adds a command that validates a docker file contains dependencies as specified in pyproject.toml and poetry.lock.  This does *NOT* validate that they are exactly matching, but rather that all dependencies in pyproject.toml/poetry.lock exist in the docker container on the correct versions.  The docker image may contain more extra dependencies

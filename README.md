@@ -99,7 +99,13 @@ poetry blixvalidatedocker --help
 
 ```bash
 # Make a virtual environment on Python 3.9
-mkvirtualenv -p python3.9 venv
+# If using virtualenvwrapper, run `mkvirtualenv -p python3.9 venv`
+virtualenv -p python3.9 venv
+
+# Or activate existing virtualenv
+# If using virtualenvwrapper, run `workon venv`
+source venv/bin/activate
+
 # installs the plugin in editable mode for easier testing via `poetry install`
 ./devtool bootstrap
 

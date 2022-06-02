@@ -4,7 +4,7 @@ from typing import List, Dict
 from zipfile import ZipFile
 
 import pkginfo
-from cleo.helpers import argument
+from cleo.helpers import argument, option
 from cleo.io.inputs.option import Option
 from cleo.io.outputs.output import Verbosity
 
@@ -37,8 +37,13 @@ class ValidateWheelPlugin(EnvCommand):
     arguments = [argument("wheelPath", "Wheel file path")]
 
     # TODO: Add groups to options
-    # TODO: Add toggleable option for using lock
-    options: List[Option] = []
+    options: List[Option] = [
+        option(
+            "no-lock",
+            None,
+            "Disables validating lock file dependencies.",
+        )
+    ]
 
     loggers = ["poetry.core.masonry.builders.wheel"]
 
@@ -108,11 +113,15 @@ class ValidateWheelPlugin(EnvCommand):
                     )
         if leftover_pyproject_packages:
             raise RuntimeError(
-                f"Packages in pyproject.toml are not present in the Wheel file: {leftover_pyproject_packages}"
+                f"Packages in pyproject.toml are not present in the Wheel file: {list(leftover_pyproject_packages)}"
             )
 
     def _validate_poetry_lock(self, requires_dist: Dict[str, str], leftover_wheel_packages: set):
         """Validates that dependencies in poetry.lock are exactly reflected in the wheel file's requires_dist"""
+        if self.option("no-lock"):
+            self.line("Skipping poetry.lock validation as --no-lock was specified")
+            return
+
         self.line("Validating against poetry.lock...")
         locked_repo = self.poetry.locker.locked_repository(True)
         ops = util.resolve_dependencies(self.poetry, self.env, locked_repo)
@@ -132,7 +141,9 @@ class ValidateWheelPlugin(EnvCommand):
                         f"version={dependency_package.version})"
                     )
         if leftover_lock_packages:
-            raise RuntimeError(f"Packages in poetry.lock are not present in the Wheel file: {leftover_lock_packages}")
+            raise RuntimeError(
+                f"Packages in poetry.lock are not present in the Wheel file: {sorted(list(leftover_lock_packages))}"
+            )
 
     def handle(self) -> None:
         path = self.argument("wheelPath")
@@ -155,7 +166,7 @@ class ValidateWheelPlugin(EnvCommand):
         self._validate_poetry_lock(packages, leftover_wheel_packages)
         if leftover_wheel_packages:
             raise RuntimeError(
-                f"Packages in Wheel file are not present in pyproject.toml/poetry.lock: {leftover_wheel_packages}"
+                f"Packages in Wheel file are not present in pyproject.toml/poetry.lock: {list(leftover_wheel_packages)}"
             )
         self._validate_data_files(path)
         self.line("Validation succeeded!")

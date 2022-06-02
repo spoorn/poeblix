@@ -4,13 +4,14 @@ import zipfile
 from pathlib import Path
 from typing import Optional, List, Dict
 
+from cleo.helpers import option
 from cleo.io.inputs.option import Option
 
 # For fixing https://github.com/python-poetry/poetry/issues/5216
 from packaging.tags import sys_tags  # noqa
 from poetry.console.application import Application
 from poetry.console.commands.env_command import EnvCommand
-from poetry.core.masonry.builders.wheel import WheelBuilder
+from poetry.core.masonry.builders.wheel import WheelBuilder, logger
 from poetry.core.poetry import Poetry
 from poetry.packages import Locker
 from poetry.plugins.application_plugin import ApplicationPlugin
@@ -44,11 +45,13 @@ class BlixWheelBuilder(WheelBuilder):
         locker: Locker,
         executable: str | Path | None = None,
         data_files: Optional[List[Dict]] = None,
+        no_lock: bool = False,
     ) -> None:
         super().__init__(poetry, executable=executable)  # type: ignore
         self._env = env
         self._locker = locker
         self._data_files = data_files
+        self._no_lock = no_lock
 
     def _get_abs_path(self, rel_path: str) -> Path:
         """Transform a relative path to absolute path"""
@@ -69,38 +72,40 @@ class BlixWheelBuilder(WheelBuilder):
 
         This can be removed if poetry supports https://github.com/python-poetry/poetry/issues/2778.
         """
-        from poetry.core.masonry.builders.wheel import logger
-        from poetry.core.packages.dependency import Dependency
+        if self._no_lock:
+            logger.info("Excluding lock dependencies from wheel as --no-lock was specified")
+        else:
+            from poetry.core.packages.dependency import Dependency
 
-        # TODO: Make using lock file configurable
-        logger.info("Adding dependencies from lock file to wheel build")
-        # There is currently a bug with poetry 1.2.0b1 where the `category` field in poetry.lock all gets set to "dev"
-        # for all packages.  As per https://github.com/python-poetry/poetry/issues/5702 and
-        # https://github.com/python-poetry/poetry/issues/2280, the `category` field is not accurate and will be removed.
-        # Instead, we will read ALL packages from the locked repo, then during resolve_dependencies, filter based on
-        # dependency group which should be used going forward 1.2.0+
-        locked_repository = self._locker.locked_repository(True)
-        # logger.info(f"locked repo {locked_repository.packages}")
-        # for package in locked_repository.packages:
-        #     logger.info(f"Package {package.__dict__}")
-        logger.info("Resolving dependencies using poetry's solver to get rid of unneeded packages")
-        ops = util.resolve_dependencies(self._poetry, self._env, locked_repository)
+            # TODO: Make using lock file configurable
+            logger.info("Adding dependencies from lock file to wheel build")
+            # There is currently a bug with poetry 1.2.0b1 where the `category` field in poetry.lock all gets set to
+            # "dev" for all packages.  As per https://github.com/python-poetry/poetry/issues/5702 and
+            # https://github.com/python-poetry/poetry/issues/2280, the `category` field is not accurate and will be
+            # removed.  Instead, we will read ALL packages from the locked repo, then during resolve_dependencies,
+            # filter based on dependency group which should be used going forward 1.2.0+
+            locked_repository = self._locker.locked_repository(True)
+            # logger.info(f"locked repo {locked_repository.packages}")
+            # for package in locked_repository.packages:
+            #     logger.info(f"Package {package.__dict__}")
+            logger.info("Resolving dependencies using poetry's solver to get rid of unneeded packages")
+            ops = util.resolve_dependencies(self._poetry, self._env, locked_repository)
 
-        # logger.info(f"dependency groups: {self._poetry.package._dependency_groups}")
+            # logger.info(f"dependency groups: {self._poetry.package._dependency_groups}")
 
-        logger.info("Adding resolved dependencies to wheel METADATA")
-        required_packages_names = [p.pretty_name for p in self._poetry.package.requires]
-        requires_dist = self._meta.requires_dist
-        logger.debug(f"Adding to Wheel Requires Dist: {ops}")
-        for op in ops:
-            dependency_package = op.package
-            name = dependency_package.pretty_name
-            version = dependency_package.version
-            dep = Dependency(name, version).to_pep_508(False)
-            # pyproject.toml always takes priority, then we use the lock file
-            # TODO: make this configurable
-            if name not in required_packages_names:
-                requires_dist.append(dep)
+            logger.info("Adding resolved dependencies to wheel METADATA")
+            required_packages_names = [p.pretty_name for p in self._poetry.package.requires]
+            requires_dist = self._meta.requires_dist
+            logger.debug(f"Adding to Wheel Requires Dist: {ops}")
+            for op in ops:
+                dependency_package = op.package
+                name = dependency_package.pretty_name
+                version = dependency_package.version
+                dep = Dependency(name, version).to_pep_508(False)
+                # pyproject.toml always takes priority, then we use the lock file
+                # TODO: make this configurable
+                if name not in required_packages_names:
+                    requires_dist.append(dep)
 
         super()._write_metadata(wheel)
 
@@ -141,7 +146,13 @@ class BlixBuildCommand(EnvCommand):
         "Builds a wheel package with custom data files mimicking data_files in setup.py, and uses the lock file"
     )
 
-    options: List[Option] = []
+    options: List[Option] = [
+        option(
+            "no-lock",
+            None,
+            "Disables building wheel file with lock dependencies.",
+        )
+    ]
 
     # Pick up Poetry's WheelBuilder logger
     loggers = ["poetry.core.masonry.builders.wheel"]
@@ -164,7 +175,12 @@ class BlixBuildCommand(EnvCommand):
 
         # Create our custom wheel builder
         builder = BlixWheelBuilder(
-            self.poetry, env=self.env, locker=self.poetry.locker, executable=self.env.python, data_files=data_files
+            self.poetry,
+            env=self.env,
+            locker=self.poetry.locker,
+            executable=self.env.python,
+            data_files=data_files,
+            no_lock=self.option("no-lock"),
         )
         builder.build()
 

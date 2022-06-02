@@ -28,7 +28,9 @@ lint() {
 
 all() {
   lint
+  echo ""
   test
+  echo "All builds and tests passed! :)"
 }
 
 test() {

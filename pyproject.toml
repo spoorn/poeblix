@@ -25,6 +25,7 @@ poetry = "1.2.0b1"
 pkginfo = "*"
 pytest = "*"
 pytest-pspec = "*"
+coverage = "*"
 
 [tool.poetry.group.dev.dependencies]
 flake8 = "*"

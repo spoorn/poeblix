@@ -1,7 +1,7 @@
 import subprocess
 from typing import List
 
-from cleo.helpers import argument
+from cleo.helpers import argument, option
 from cleo.io.inputs.option import Option
 
 # For fixing https://github.com/python-poetry/poetry/issues/5216
@@ -27,7 +27,13 @@ class ValidateDockerPlugin(EnvCommand):
 
     arguments = [argument("containerId", "Docker Container ID")]
 
-    options: List[Option] = []
+    options: List[Option] = [
+        option(
+            "no-lock",
+            None,
+            "Disables validating lock file dependencies.",
+        )
+    ]
 
     loggers = ["poetry.core.masonry.builders.wheel"]
 
@@ -46,6 +52,10 @@ class ValidateDockerPlugin(EnvCommand):
                     )
 
     def _validate_poetry_lock(self, docker_deps: dict):
+        if self.option("no-lock"):
+            self.line("Skipping poetry.lock validation as --no-lock was specified")
+            return
+
         cid = self.argument("containerId")
         locked_repo = self.poetry.locker.locked_repository(True)
         ops = util.resolve_dependencies(self.poetry, self.env, locked_repo)

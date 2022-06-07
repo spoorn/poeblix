@@ -27,7 +27,8 @@ def test_positive_no_lock():
     stdout, stderr = proc.communicate()
     assert stdout is None
     stderr = stderr.decode()
-    assert "RuntimeError" in stderr, "Expected error to be RuntimeError"
+    # From poetry 1.2.0b2, stderr only includes the error message unless "-v" is included in the command
+    # assert "RuntimeError" in stderr, "Expected error to be RuntimeError"
     assert (
         "Packages in poetry.lock are not present in the Wheel file: ['numpy', 'python-dateutil', 'pytz', 'six']"
         in stderr
@@ -43,7 +44,7 @@ def test_negative_missing_from_project():
     stdout, stderr = proc.communicate()
     assert stdout is None
     stderr = stderr.decode()
-    assert "RuntimeError" in stderr, "Expected error to be RuntimeError"
+    # assert "RuntimeError" in stderr, "Expected error to be RuntimeError"
     assert (
         "Packages in Wheel file are not present in pyproject.toml/poetry.lock: ['nemoize']" in stderr
     ), "Did not get expected error message!"
@@ -58,7 +59,7 @@ def test_negative_missing_from_wheel():
     stdout, stderr = proc.communicate()
     assert stdout is None
     stderr = stderr.decode()
-    assert "RuntimeError" in stderr, "Expected error to be RuntimeError"
+    # assert "RuntimeError" in stderr, "Expected error to be RuntimeError"
     assert (
         "Packages in pyproject.toml are not present in the Wheel file: ['nemoize']" in stderr
     ), "Did not get expected error message!"
@@ -75,7 +76,7 @@ def test_negative_missing_data_files():
     stdout, stderr = proc.communicate()
     assert stdout is None
     stderr = stderr.decode()
-    assert "RuntimeError" in stderr, "Expected error to be RuntimeError"
+    # assert "RuntimeError" in stderr, "Expected error to be RuntimeError"
     assert (
         "Wheel at [dist/blixexample-missing_data_files_from_wheel.whl] does not contain expected data_file [blixexample-0.1.0.data/data/share/data/test.txt]"
         in stderr
@@ -93,7 +94,7 @@ def test_negative_missing_data_files_from_project():
     stdout, stderr = proc.communicate()
     assert stdout is None
     stderr = stderr.decode()
-    assert "RuntimeError" in stderr, "Expected error to be RuntimeError"
+    # assert "RuntimeError" in stderr, "Expected error to be RuntimeError"
     assert (
         "Wheel at [dist/blixexample-missing_data_files_from_project.whl] contains extraneous data_files not specified in pyproject.toml: ['blixexample-0.1.0.data/data/share/data/test.txt', 'blixexample-0.1.0.data/data/share/data/anotherfile', 'blixexample-0.1.0.data/data/share/data/threes/athirdfile']"
         in stderr

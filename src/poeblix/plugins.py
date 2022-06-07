@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import zipfile
 from pathlib import Path
-from typing import Optional, List, Dict
+from typing import Optional, List, Dict, cast
 
 from cleo.helpers import option
 from cleo.io.inputs.option import Option
@@ -83,7 +83,7 @@ class BlixWheelBuilder(WheelBuilder):
             # https://github.com/python-poetry/poetry/issues/2280, the `category` field is not accurate and will be
             # removed.  Instead, we will read ALL packages from the locked repo, then during resolve_dependencies,
             # filter based on dependency group which should be used going forward 1.2.0+
-            locked_repository = self._locker.locked_repository(True)
+            locked_repository = self._locker.locked_repository()
             # logger.info(f"locked repo {locked_repository.packages}")
             # for package in locked_repository.packages:
             #     logger.info(f"Package {package.__dict__}")
@@ -165,7 +165,15 @@ class BlixBuildCommand(EnvCommand):
 
         data_files = None
         try:
-            data_files_config = self.poetry.pyproject.data["tool"]["blix"]["data"]
+            """
+            Cast to dict to avoid these errors after upgrading poetry to 1.2.0b2.  It should be a dict anyways:
+
+            src/poeblix/plugins.py:169:16: error: Unsupported right operand type for in ("Union[Any, Item, Container]")
+            src/poeblix/plugins.py:170:30: error: Value of type "Union[Any, Item, Container]" is not indexable
+            src/poeblix/plugins.py:181:24: error: Argument "data_files" to "BlixWheelBuilder" has incompatible type
+                "Union[Any, Item, Container, None]"; expected "Optional[List[Dict[Any, Any]]]"
+            """
+            data_files_config = cast(dict, self.poetry.pyproject.data["tool"]["blix"]["data"])  # type: ignore
             if "data_files" in data_files_config:
                 data_files = data_files_config["data_files"]
                 self.line(f"Adding data_files={data_files}")

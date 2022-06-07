@@ -123,7 +123,7 @@ class ValidateWheelPlugin(EnvCommand):
             return
 
         self.line("Validating against poetry.lock...")
-        locked_repo = self.poetry.locker.locked_repository(True)
+        locked_repo = self.poetry.locker.locked_repository()
         ops = util.resolve_dependencies(self.poetry, self.env, locked_repo)
         leftover_lock_packages = set([p.package.pretty_name for p in ops])
         for op in ops:

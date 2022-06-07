@@ -8,6 +8,7 @@ set -x
 
 bootstrap() {
   poetry install
+  local_plugin_add
 }
 
 lint() {
@@ -23,7 +24,8 @@ lint() {
 
     # mypy
     echo "== Mypy =="
-    echo y | mypy --install-types --config-file setup.cfg src/
+    # --namespace-packages for https://stackoverflow.com/questions/64905873/sibling-package-import-and-mypy-has-no-attribute-error
+    echo y | mypy --install-types --namespace-packages --config-file setup.cfg src/
 }
 
 all() {
@@ -38,7 +40,9 @@ test() {
   cd test && pytest --pspec test_walkthrough.py ; cd -
 }
 
+# Delete old wheel files first!
 local_plugin_add() {
+  poetry build -f wheel
   # Calls `poetry plugin add` using the wheel file under dist/poeblix*.whl for local testing
   poetry plugin add $PWD/dist/poeblix*.whl
 }

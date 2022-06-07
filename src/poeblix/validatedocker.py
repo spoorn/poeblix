@@ -57,7 +57,7 @@ class ValidateDockerPlugin(EnvCommand):
             return
 
         cid = self.argument("containerId")
-        locked_repo = self.poetry.locker.locked_repository(True)
+        locked_repo = self.poetry.locker.locked_repository()
         ops = util.resolve_dependencies(self.poetry, self.env, locked_repo)
         for op in ops:
             dependency_package = op.package

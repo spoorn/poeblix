@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "poeblix"
-version = "0.2.0"
+version = "0.3.0"
 description = "Poetry plugin that adds support for building wheel files using the poetry.lock file, and data_files just like in setup.py"
 authors = ["spoorn <spookump@gmail.com>"]
 readme = "README.md"
@@ -21,16 +21,16 @@ packages = [
 [tool.poetry.dependencies]
 python = "^3.9"
 # TODO: use release version when 1.2+ is officially out
-poetry = "1.2.0b1"
-pkginfo = "*"
-pytest = "*"
-pytest-pspec = "*"
-pytest-cov = "*"
+poetry = "^1.2|^1.2.0b1"
 
 [tool.poetry.group.dev.dependencies]
 flake8 = "*"
 pre-commit = "*"
 mypy = "*"
+pkginfo = "*"
+pytest = "*"
+pytest-pspec = "*"
+pytest-cov = "*"
 
 [tool.poetry.plugins."poetry.application.plugin"]
 # This must be the same as the package name due to https://github.com/python-poetry/poetry/pull/5412#issuecomment-1089978391

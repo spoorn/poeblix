@@ -132,3 +132,5 @@ dmypy.json
 windows_venv/
 venv/
 linux_venv/
+
+!test/**/dist/

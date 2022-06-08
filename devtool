@@ -36,8 +36,23 @@ all() {
 }
 
 test() {
+  PY_VERSION=$(python -c 'import sys; print(str(sys.version_info[0]) + "." + str(sys.version_info[1]))')
+
   # Walkthrough tests
-  cd test && pytest --pspec test_walkthrough.py ; cd -
+  if [[ $PY_VERSION == "3.9" ]]; then
+    echo "== Python 3.9 Walkthrough Tests =="
+    cd test && pytest --pspec test_walkthrough.py ; cd -
+  elif [[ $PY_VERSION == "3.8" ]]; then
+    echo "== Python 3.8 Walkthrough Tests =="
+    cd test && pytest --cov-fail-under 78 --pspec py38/test_walkthrough_py38.py ; cd -
+  elif [[ $PY_VERSION == "3.7" ]]; then
+    echo "== Python 3.7 Walkthrough Tests =="
+    cd test && pytest --cov-fail-under 78 --pspec py37/test_walkthrough_py37.py ; cd -
+  else
+    echo "Unsupported python version: "$PY_VERSION
+    echo "test() FAILED"
+    exit 1
+  fi
 }
 
 # Delete old wheel files first!

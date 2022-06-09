@@ -31,6 +31,7 @@ pkginfo = "*"
 pytest = "*"
 pytest-pspec = "*"
 pytest-cov = "*"
+pre-commit = "*"
 
 [tool.poetry.plugins."poetry.application.plugin"]
 # This must be the same as the package name due to https://github.com/python-poetry/poetry/pull/5412#issuecomment-1089978391

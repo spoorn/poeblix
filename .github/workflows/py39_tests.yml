@@ -37,4 +37,5 @@ jobs:
           poetry config virtualenvs.create false
           cd $GITHUB_WORKSPACE
           ./devtool bootstrap
-          ./devtool all ; ./devtool all
+          ./devtool all || true
+          ./devtool all

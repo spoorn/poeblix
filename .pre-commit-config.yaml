@@ -3,8 +3,11 @@ repos:
     rev: v4.2.0
     hooks:
     -   id: check-yaml
+        exclude: ^.github/
     -   id: end-of-file-fixer
+        exclude: ^.github/
     -   id: trailing-whitespace
+        exclude: ^.github/
 
 # From https://github.com/PyCQA/autoflake/pull/62
 -   repo: https://github.com/myint/autoflake

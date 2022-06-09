@@ -29,10 +29,12 @@ jobs:
           python-version: 3.9
 
       # Runs a set of commands using the runners shell
+      # Run all twice as mypy needs to install types and be reran
       - name: Run a multi-line script
         run: |
           curl -sSL https://install.python-poetry.org | python3 -
           poetry self update --preview
           cd $GITHUB_WORKSPACE
           ./devtool bootstrap
+          ./devtool all
           ./devtool all

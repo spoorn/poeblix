@@ -20,7 +20,7 @@ def resolve_dependencies(poetry: "Poetry", env: Env, locked_repository: Reposito
     """
     # Making a new repo containing the packages
     # newly resolved and the ones from the current lock file
-    repo = Repository()
+    repo = Repository("poetry-locked")
     for package in locked_repository.packages:
         if not repo.has_package(package):
             repo.add_package(package)
@@ -39,8 +39,8 @@ def resolve_dependencies(poetry: "Poetry", env: Env, locked_repository: Reposito
     solver = Solver(
         poetry.package.with_dependency_groups(groups=groups, only=True),
         pool,
-        InstalledRepository.load(env),
-        locked_repository,
+        InstalledRepository.load(env).packages,
+        locked_repository.packages,
         NullIO(),
     )
 

@@ -36,6 +36,7 @@ jobs:
           python-version: ${{ matrix.python-version }}
 
       # Runs a set of commands using the runners shell
+      # Force updates poetry to the latest prerelease version to catch backwards incompatibility
       # Run all twice as mypy needs to install types and be reran
       - name: Run a multi-line script
         run: |

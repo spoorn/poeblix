@@ -2,6 +2,7 @@
 
 # Note: If developing on windows, you might need to run this command to get rid of /r in this script file:
 #   sed -i 's/\r$//' devtool
+# Or make sure your git has autocrlf off: https://stackoverflow.com/questions/29045140/env-bash-r-no-such-file-or-directory
 
 set -euo pipefail
 set -x

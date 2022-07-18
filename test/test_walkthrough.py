@@ -4,7 +4,7 @@ import subprocess
 def test_positive_happy_case_example():
     cwd = "positive_cases/happy_case_example"
     # Build
-    subprocess.check_call(["poetry", "blixbuild"], cwd=cwd)
+    subprocess.check_call(["poetry", "blixbuild", "-vvv"], cwd=cwd)
 
     # Validate wheel
     subprocess.check_call(["poetry", "blixvalidatewheel", "dist/blixexample-0.1.0-py3-none-any.whl"], cwd=cwd)

@@ -44,5 +44,6 @@ jobs:
           poetry config virtualenvs.create false
           cd $GITHUB_WORKSPACE
           ./devtool bootstrap
+          poetry add poetry@latest --allow-prereleases
           ./devtool all || true
           ./devtool all

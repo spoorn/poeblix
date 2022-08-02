@@ -1,3 +1,6 @@
+import os.path
+import pkginfo
+import re
 import subprocess
 
 
@@ -33,6 +36,38 @@ def test_positive_no_lock():
         "Packages in poetry.lock are not present in the Wheel file: ['numpy', 'python-dateutil', 'pytz', 'six']"
         in stderr
     ), "Did not get expected error message!"
+
+
+def test_positive_only_lock():
+    cwd = "positive_cases/only_lock"
+    # Build
+    subprocess.check_call(["poetry", "blixbuild", "--only-lock"], cwd=cwd)
+
+    # Validate wheel
+    subprocess.check_call(["poetry", "blixvalidatewheel", "dist/blixexample-0.1.0-py3-none-any.whl"], cwd=cwd)
+
+    # Check if only fixed versions from lock file are set as dependencies
+    # e.g "pandas (==0.1.0,<0.2.0)"
+    package_regex = r".* \(\=\=.*\)"
+
+    path = os.path.join(cwd, "dist/blixexample-0.1.0-py3-none-any.whl")
+    metadata = pkginfo.get_metadata(path)
+
+    for package in metadata.requires_dist:
+        parsed = re.search(package_regex, package)
+        assert parsed, f"Dependency {package} doesn't have fixed versions"
+
+
+def test_negative_incompatible_lock_options():
+    cwd = "negative_cases/incompatible_lock_options"
+
+    # Validate command fails when both 'no-lock' and '--only-lock'
+    # are given at the same time
+    proc = subprocess.Popen(["poetry", "blixbuild", "--no-lock", "--only-lock"], cwd=cwd, stderr=subprocess.PIPE)
+    stdout, stderr = proc.communicate()
+    assert stdout is None
+    stderr = stderr.decode()
+    assert "'no-lock' and 'only-lock' options are incompatible" in stderr, "Did not get expected error message!"
 
 
 def test_negative_missing_from_project():

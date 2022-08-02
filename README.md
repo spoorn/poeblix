@@ -11,6 +11,36 @@ These contain custom poetry plugins that enable functionality not available in t
 
 These are not supported in Poetry due to debate in the community: https://github.com/python-poetry/poetry/issues/890, https://github.com/python-poetry/poetry/issues/4013, https://github.com/python-poetry/poetry/issues/2778
 
+## Deterministic builds and environments
+
+Poetry guarantees deterministic installations and environments thanks
+to the `poetry.lock` file, which is where it stores the exact versions
+of all the dependencies needed to install a package. However, this doesn't
+occurs when wheel or package artifacts are build using `poetry build`
+command.
+
+To build a package, poetry uses the direct dependencies set in the
+`pyproject.toml` and not all the other dependencies required to install
+a package. For example, if `pyproject.toml` defines `pandas = "1.4.2"`
+as dependency but `poetry.lock` also says that `pandas` requires of
+`numpy-1.22.4`, poetry will build a package with `pandas` as dependency
+but not with `numpy`.
+
+Another problem that exits is that `pyproject.toml` can contain dependencies
+with ranges of versions while `poetry.lock` has pinned versions. For instance,
+if `pyproject.toml` has as dependency `pandas = ">=1.3"` but `poetry.lock`
+sets `pandas-1.4.2`, poetry will build a package with the dependency
+`Requires-Dist: pandas (>=0.1.3,<0.2.0)`. When the package is installed,
+the resolver will install the newest package of `pandas` which its version
+number is greater than or equal to `0.1.3` and lower than `0.2.0`.
+
+Summing this up, the same python package created with `poetry build` and
+installed several times won't install the same dependencies, making impossible
+to have deterministic installations.
+
+This plugin solves these problems building python packages that use the
+dependencies defined in the `poetry.lock`.
+
 
 # How to Use
 
@@ -44,14 +74,18 @@ poetry plugin add poeblix==<version>
 
 ## Usage
 
-1. To build a wheel from your package (default uses poetry.lock to pin dependencies in the wheel):
+1. To build a wheel from your package (pyproject.toml dependencies have precedence over poetry.lock ones, by default)
 
 ```commandline
 poetry blixbuild
 
 # To disable using lock file for building wheel
 poetry blixbuild --no-lock
+
+# Uses lock dependencies only which are pinned to exact versions, instead of pyproject.toml
+poetry blixbuild --only-lock
 ```
+
 
 2. Validate a wheel file has consistent dependencies and data_files as specified in pyproject.toml/poetry.lock
 

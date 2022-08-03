@@ -46,12 +46,14 @@ class BlixWheelBuilder(WheelBuilder):
         executable: str | Path | None = None,
         data_files: Optional[List[Dict]] = None,
         no_lock: bool = False,
+        only_lock: bool = False,
     ) -> None:
         super().__init__(poetry, executable=executable)  # type: ignore
         self._env = env
         self._locker = locker
         self._data_files = data_files
         self._no_lock = no_lock
+        self._only_lock = only_lock
 
     def _get_abs_path(self, rel_path: str) -> Path:
         """Transform a relative path to absolute path"""
@@ -93,17 +95,29 @@ class BlixWheelBuilder(WheelBuilder):
             # logger.info(f"dependency groups: {self._poetry.package._dependency_groups}")
 
             logger.info("Adding resolved dependencies to wheel METADATA")
-            required_packages_names = [p.pretty_name for p in self._poetry.package.requires]
+
+            # By default, 'pyproject.toml' dependencies have priority over
+            # 'poetry.lock' ones.
+            #
+            # When 'only-lock' is set, pyproject dependencies are removed
+            # using fixed versions from the lock file only.
+            #
+            # However, poetry requires that the packages listed on the
+            # 'pyproject.toml' are also on the 'poetry.lock' file,
+            # so no direct dependencies will be missed when the wheel
+            # is built. Only package versions may vary.
+            if self._only_lock:
+                self._meta.requires_dist = []
+
             requires_dist = self._meta.requires_dist
+            required_packages_names = [p.pretty_name for p in self._poetry.package.requires]
             logger.debug(f"Adding to Wheel Requires Dist: {ops}")
             for op in ops:
                 dependency_package = op.package
                 name = dependency_package.pretty_name
                 version = dependency_package.version
                 dep = Dependency(name, version).to_pep_508(False)
-                # pyproject.toml always takes priority, then we use the lock file
-                # TODO: make this configurable
-                if name not in required_packages_names:
+                if self._only_lock or name not in required_packages_names:
                     requires_dist.append(dep)
 
         super()._write_metadata(wheel)
@@ -150,13 +164,21 @@ class BlixBuildCommand(EnvCommand):
             "no-lock",
             None,
             "Disables building wheel file with lock dependencies.",
-        )
+        ),
+        option(
+            "only-lock",
+            None,
+            "Uses lock dependencies only which are pinned to exact versions, instead of pyproject.toml",
+        ),
     ]
 
     # Pick up Poetry's WheelBuilder logger
     loggers = ["poetry.core.masonry.builders.wheel"]
 
     def handle(self) -> None:
+        if self.option("no-lock") and self.option("only-lock"):
+            raise RuntimeError("'no-lock' and 'only-lock' options are incompatible")
+
         package = self.poetry.package
         self.line(f"Building <c1>{package.pretty_name}</c1> (<c2>{package.version}</c2>)")
 
@@ -188,6 +210,7 @@ class BlixBuildCommand(EnvCommand):
             executable=self.env.python,
             data_files=data_files,
             no_lock=self.option("no-lock"),
+            only_lock=self.option("only-lock"),
         )
         builder.build()
 

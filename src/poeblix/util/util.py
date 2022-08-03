@@ -1,4 +1,4 @@
-from typing import Sequence
+from typing import Sequence, Callable
 
 from cleo.io.null_io import NullIO
 
@@ -54,3 +54,8 @@ def resolve_dependencies(poetry: "Poetry", env: Env, locked_repository: Reposito
             synchronize=False,
         )
     return ops
+
+
+def validate_options_mutually_exclusive(option_func: Callable, option1: str, option2: str) -> None:
+    if option_func(option1) and option_func(option2):
+        raise RuntimeError(f"'{option1}' and '{option2}' options are incompatible")

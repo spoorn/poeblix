@@ -22,7 +22,9 @@ class ValidateDockerPlugin(EnvCommand):
     description = (
         "Validates a docker container contains dependencies as specified in pyproject.toml and poetry.lock.  "
         "By default, this validates in one direction, where dependencies specified in pyproject.toml/poetry.lock "
-        "should be present in the Docker container, but not the other way around."
+        "should be present in the Docker container, but not the other way around.  Note: "
+        "by default, the validation checks that the wheel's Requires Dist constraints are satisfied by "
+        "pyproject.toml/poetry.lock, not an exact 1:1 match."
     )
 
     arguments = [argument("containerId", "Docker Container ID")]

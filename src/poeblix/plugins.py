@@ -176,8 +176,7 @@ class BlixBuildCommand(EnvCommand):
     loggers = ["poetry.core.masonry.builders.wheel"]
 
     def handle(self) -> None:
-        if self.option("no-lock") and self.option("only-lock"):
-            raise RuntimeError("'no-lock' and 'only-lock' options are incompatible")
+        util.validate_options_mutually_exclusive(self.option, "no-lock", "only-lock")
 
         package = self.poetry.package
         self.line(f"Building <c1>{package.pretty_name}</c1> (<c2>{package.version}</c2>)")

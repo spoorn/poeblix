@@ -31,7 +31,9 @@ class ValidateWheelPlugin(EnvCommand):
     description = (
         "Validates a wheel file contains Requires Dist as specified in pyproject.toml and poetry.lock "
         "files in the project this command is ran.  This by default validates in both directions, as in "
-        "it validates the wheel file's Required Dist is specified in the project and vice versa."
+        "it validates the wheel file's Requires Dist is specified in the project and vice versa.  Note: "
+        "by default, the validation checks that the wheel's Requires Dist constraints are satisfied by "
+        "pyproject.toml/poetry.lock, not an exact 1:1 match."
     )
 
     arguments = [argument("wheelPath", "Wheel file path")]

@@ -20,11 +20,9 @@ class ValidateDockerPlugin(EnvCommand):
 
     name = "blixvalidatedocker"
     description = (
-        "Validates a docker container contains dependencies as specified in pyproject.toml and poetry.lock.  "
-        "By default, this validates in one direction, where dependencies specified in pyproject.toml/poetry.lock "
-        "should be present in the Docker container, but not the other way around.  Note: "
-        "by default, the validation checks that the wheel's Requires Dist constraints are satisfied by "
-        "pyproject.toml/poetry.lock, not an exact 1:1 match."
+        "Validates a docker container contains dependencies that satisfies constraints in pyproject.toml and "
+        "poetry.lock.  By default, this validates in one direction, where dependencies specified in "
+        "pyproject.toml/poetry.lock should be present in the Docker container, but not the other way around."
     )
 
     arguments = [argument("containerId", "Docker Container ID")]
@@ -34,7 +32,15 @@ class ValidateDockerPlugin(EnvCommand):
             "no-lock",
             None,
             "Disables validating lock file dependencies.",
-        )
+        ),
+        option(
+            "with-groups",
+            None,
+            "Specify which dependency groups to use to validate the wheel file, on top of required groups from "
+            "pyproject.toml.  Can be specified multiple times or as a comma delimited list.",
+            flag=False,
+            multiple=True,
+        ),
     ]
 
     loggers = ["poetry.core.masonry.builders.wheel"]
@@ -58,9 +64,13 @@ class ValidateDockerPlugin(EnvCommand):
             self.line("Skipping poetry.lock validation as --no-lock was specified")
             return
 
+        with_groups = []
+        for group in self.option("with-groups"):
+            with_groups.extend(group.split(","))
+
         cid = self.argument("containerId")
         locked_repo = self.poetry.locker.locked_repository()
-        ops = util.resolve_dependencies(self.poetry, self.env, locked_repo)
+        ops = util.resolve_dependencies(self.poetry, self.env, locked_repo, with_groups)
         for op in ops:
             dependency_package = op.package
             name = dependency_package.pretty_name

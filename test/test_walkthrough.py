@@ -1,7 +1,8 @@
 import os.path
-import pkginfo
 import re
 import subprocess
+
+import pkginfo
 
 
 def test_positive_happy_case_example():
@@ -11,6 +12,17 @@ def test_positive_happy_case_example():
 
     # Validate wheel
     subprocess.check_call(["poetry", "blixvalidatewheel", "dist/blixexample-0.1.0-py3-none-any.whl"], cwd=cwd)
+
+
+def test_positive_with_groups():
+    cwd = "positive_cases/happy_case_example"
+    # Build
+    subprocess.check_call(["poetry", "blixbuild", "--with-groups=integ,dev", "-vvv"], cwd=cwd)
+
+    # Validate wheel
+    subprocess.check_call(
+        ["poetry", "blixvalidatewheel", "--with-groups=integ,dev", "dist/blixexample-0.1.0-py3-none-any.whl"], cwd=cwd
+    )
 
 
 def test_positive_no_lock():

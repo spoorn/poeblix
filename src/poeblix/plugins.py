@@ -47,6 +47,7 @@ class BlixWheelBuilder(WheelBuilder):
         data_files: Optional[List[Dict]] = None,
         no_lock: bool = False,
         only_lock: bool = False,
+        with_groups: List[str] = None,
     ) -> None:
         super().__init__(poetry, executable=executable)  # type: ignore
         self._env = env
@@ -54,6 +55,7 @@ class BlixWheelBuilder(WheelBuilder):
         self._data_files = data_files
         self._no_lock = no_lock
         self._only_lock = only_lock
+        self._with_groups = with_groups
 
     def _get_abs_path(self, rel_path: str) -> Path:
         """Transform a relative path to absolute path"""
@@ -90,7 +92,7 @@ class BlixWheelBuilder(WheelBuilder):
             # for package in locked_repository.packages:
             #     logger.info(f"Package {package.__dict__}")
             logger.info("Resolving dependencies using poetry's solver to get rid of unneeded packages")
-            ops = util.resolve_dependencies(self._poetry, self._env, locked_repository)
+            ops = util.resolve_dependencies(self._poetry, self._env, locked_repository, self._with_groups)
 
             # logger.info(f"dependency groups: {self._poetry.package._dependency_groups}")
 
@@ -170,6 +172,14 @@ class BlixBuildCommand(EnvCommand):
             None,
             "Uses lock dependencies only which are pinned to exact versions, instead of pyproject.toml",
         ),
+        option(
+            "with-groups",
+            None,
+            "Specify which dependency groups to use to build the wheel file, on top of required groups from "
+            "pyproject.toml.  Can be specified multiple times or as a comma delimited list.",
+            flag=False,
+            multiple=True,
+        ),
     ]
 
     # Pick up Poetry's WheelBuilder logger
@@ -177,6 +187,9 @@ class BlixBuildCommand(EnvCommand):
 
     def handle(self) -> None:
         util.validate_options_mutually_exclusive(self.option, "no-lock", "only-lock")
+        with_groups = []
+        for group in self.option("with-groups"):
+            with_groups.extend(group.split(","))
 
         package = self.poetry.package
         self.line(f"Building <c1>{package.pretty_name}</c1> (<c2>{package.version}</c2>)")
@@ -210,6 +223,7 @@ class BlixBuildCommand(EnvCommand):
             data_files=data_files,
             no_lock=self.option("no-lock"),
             only_lock=self.option("only-lock"),
+            with_groups=with_groups,
         )
         builder.build()
 

@@ -1,4 +1,4 @@
-from typing import Sequence, Callable
+from typing import Sequence, Callable, List
 
 from cleo.io.null_io import NullIO
 
@@ -13,7 +13,9 @@ from poetry.repositories.installed_repository import InstalledRepository
 from poetry.utils.env import Env
 
 
-def resolve_dependencies(poetry: "Poetry", env: Env, locked_repository: Repository) -> Sequence[Operation]:
+def resolve_dependencies(
+    poetry: "Poetry", env: Env, locked_repository: Repository, with_groups: List[str] = None
+) -> Sequence[Operation]:
     """
     This uses poetry's solver to resolve dependencies and filters out packages from the lock file which are not
     needed, such as packages that are not for our OS environment using markers (e.g. pywin32 is for Windows).
@@ -34,7 +36,7 @@ def resolve_dependencies(poetry: "Poetry", env: Env, locked_repository: Reposito
     # See https://github.com/python-poetry/poetry/blob/master/src/poetry/installation/installer.py#L34 for poetry's
     # usage of this
     # TODO: Add support for adding more groups
-    groups = ["default", "main"]
+    groups = set(["default", "main"] + (with_groups if with_groups else []))
 
     solver = Solver(
         poetry.package.with_dependency_groups(groups=groups, only=True),

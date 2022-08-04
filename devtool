@@ -8,6 +8,7 @@ set -euo pipefail
 set -x
 
 bootstrap() {
+  install_poetry
   poetry install
   local_plugin_add
 }

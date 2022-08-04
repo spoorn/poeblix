@@ -29,11 +29,9 @@ class ValidateWheelPlugin(EnvCommand):
 
     name = "blixvalidatewheel"
     description = (
-        "Validates a wheel file contains Requires Dist as specified in pyproject.toml and poetry.lock "
+        "Validates a wheel file contains Requires Dist that satisfies constraints in pyproject.toml and poetry.lock "
         "files in the project this command is ran.  This by default validates in both directions, as in "
-        "it validates the wheel file's Requires Dist is specified in the project and vice versa.  Note: "
-        "by default, the validation checks that the wheel's Requires Dist constraints are satisfied by "
-        "pyproject.toml/poetry.lock, not an exact 1:1 match."
+        "it validates the wheel file's Requires Dist is specified in the project and vice versa."
     )
 
     arguments = [argument("wheelPath", "Wheel file path")]
@@ -44,7 +42,15 @@ class ValidateWheelPlugin(EnvCommand):
             "no-lock",
             None,
             "Disables validating lock file dependencies.",
-        )
+        ),
+        option(
+            "with-groups",
+            None,
+            "Specify which dependency groups to use to validate the wheel file, on top of required groups from "
+            "pyproject.toml.  Can be specified multiple times or as a comma delimited list.",
+            flag=False,
+            multiple=True,
+        ),
     ]
 
     loggers = ["poetry.core.masonry.builders.wheel"]
@@ -124,9 +130,13 @@ class ValidateWheelPlugin(EnvCommand):
             self.line("Skipping poetry.lock validation as --no-lock was specified")
             return
 
+        with_groups = []
+        for group in self.option("with-groups"):
+            with_groups.extend(group.split(","))
+
         self.line("Validating against poetry.lock...")
         locked_repo = self.poetry.locker.locked_repository()
-        ops = util.resolve_dependencies(self.poetry, self.env, locked_repo)
+        ops = util.resolve_dependencies(self.poetry, self.env, locked_repo, with_groups)
         leftover_lock_packages = set([p.package.pretty_name for p in ops])
         for op in ops:
             dependency_package = op.package

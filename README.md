@@ -1,5 +1,5 @@
 # poeblix
-Poetry Plugin that adds various features deemed unfit for the official release, but makes sense to me
+Poetry Plugin that adds various features that extend the `poetry` command such as building wheel files with locked depdencies, and validations of wheel/docker containers
 
 # Overview
 These contain custom poetry plugins that enable functionality not available in the official distribution of poetry.  These include:
@@ -71,6 +71,8 @@ poetry plugin add poeblix@latest
 # Update to specific version
 poetry plugin add poeblix==<version>
 ```
+
+You should now see the blix* commands if you run `poetry list`
 
 ## Usage
 

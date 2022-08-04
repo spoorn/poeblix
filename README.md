@@ -79,11 +79,16 @@ poetry plugin add poeblix==<version>
 ```commandline
 poetry blixbuild
 
+# Note: Options below are also available as part of the `blixvalidatewheel` and `blixvalidatedocker` commands
+
 # To disable using lock file for building wheel
 poetry blixbuild --no-lock
 
 # Uses lock dependencies only which are pinned to exact versions, instead of pyproject.toml
 poetry blixbuild --only-lock
+
+# Specify additional dependency groups to include as RequiresDist in the wheel
+poetry blixbuild --with-groups=dev,integ,etc.
 ```
 
 

@@ -50,5 +50,4 @@ jobs:
           cd $GITHUB_WORKSPACE
           ./devtool bootstrap
           poetry add poetry@latest --allow-prereleases
-          ./devtool all || true
-          ./devtool all
+          ./devtool all || ./devtool all

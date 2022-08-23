@@ -210,7 +210,12 @@ class BlixBuildCommand(EnvCommand):
             data_files_config = cast(dict, self.poetry.pyproject.data["tool"]["blix"]["data"])  # type: ignore
             if "data_files" in data_files_config:
                 data_files = data_files_config["data_files"]
-                self.line(f"Adding data_files={data_files}")
+                """
+                List out the data_files when printing as __str__ for tomlkit seems to have a breaking change where
+                it tries to call v.value.value for each item in the Toml Array, but the item may be a string such as
+                the "\r\n" character which will run into an error as there is no value() method on strings.
+                """
+                self.line(f"Adding data_files={[v for v in data_files]}")
         except NonExistentKey:
             self.line(f"[tool.blix.data] section not found in {self.poetry.file}, no data_files to process")
 

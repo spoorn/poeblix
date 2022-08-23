@@ -61,7 +61,7 @@ test() {
 local_plugin_add() {
   poetry build -f wheel
   # Calls `poetry plugin add` using the wheel file under dist/poeblix*.whl for local testing
-  poetry plugin add $PWD/dist/poeblix*.whl
+  poetry self add $PWD/dist/poeblix*.whl
 }
 
 install_poetry() {
@@ -79,6 +79,12 @@ install_poetry() {
 }
 
 uninstall_poetry() {
+  # Clear pypi cache
+  echo yes | poetry cache clear --all pypi
+
+  # Delete poetry global config to reset
+  rm -rf ~/.config/pypoetry
+
   if [[ $OSTYPE == 'cygwin'* ]]; then
     $((Invoke-WebRequest -Uri https://install.python-poetry.org -UseBasicParsing).Content | python - --uninstall)
   elif [[ $OSTYPE == 'linux-gnu'* ]] || [[ $OSTYPE == 'darwin'* ]]; then

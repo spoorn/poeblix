@@ -27,7 +27,7 @@ lint() {
     # mypy
     echo "== Mypy =="
     # --namespace-packages for https://stackoverflow.com/questions/64905873/sibling-package-import-and-mypy-has-no-attribute-error
-    echo y | mypy --install-types --namespace-packages --config-file setup.cfg src/
+    echo y | mypy --install-types --namespace-packages --config-file setup.cfg src/ || mypy --install-types --namespace-packages --config-file setup.cfg src/
 }
 
 all() {
@@ -80,7 +80,7 @@ install_poetry() {
 
 uninstall_poetry() {
   # Clear pypi cache
-  echo yes | poetry cache clear --all pypi
+  echo yes | poetry cache clear --all pypi || true
 
   # Delete poetry global config to reset
   rm -rf ~/.config/pypoetry

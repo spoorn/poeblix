@@ -51,7 +51,7 @@ class ValidateDockerPlugin(EnvCommand):
         for package in required_packages:
             name = package.pretty_name
             if name in docker_deps:
-                if package.accepts(Package(name, docker_deps[name])):
+                if Package(name, docker_deps[name]).satisfies(package):
                     docker_deps.pop(name)
                 else:
                     raise ValueError(

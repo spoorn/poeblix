@@ -22,9 +22,9 @@ def resolve_dependencies(
     """
     # Making a new repo containing the packages
     # newly resolved and the ones from the current lock file
-    repo = Repository("poetry-locked")
+    repo = Repository(name="poetry-locked")
     for package in locked_repository.packages:
-        if not repo.has_package(package):
+        if not package.is_direct_origin() and not repo.has_package(package):
             repo.add_package(package)
 
     pool = Pool(ignore_repository_names=True)

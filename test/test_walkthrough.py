@@ -1,5 +1,4 @@
 import os.path
-import re
 import subprocess
 
 import pkginfo
@@ -13,6 +12,29 @@ def test_positive_happy_case_example():
     # Validate wheel
     subprocess.check_call(["poetry", "blixvalidatewheel", "dist/blixexample-0.1.0-py3-none-any.whl"], cwd=cwd)
 
+    path = os.path.join(cwd, "dist/blixexample-0.1.0-py3-none-any.whl")
+    metadata = pkginfo.get_metadata(path)
+
+    # Validate wheel metadata
+    expected = {
+        'gunicorn (>=19.9.0,<20.0.0); extra == "gunicorn"',
+        "nemoize (>=0.1.0,<0.2.0)",
+        "numpy (==1.23.2)",
+        "pandas (==1.4.2)",
+        "python-dateutil (==2.8.2)",
+        "pytz (==2022.2.1)",
+        "six (==1.16.0)",
+    }
+    missing = []
+    for package in metadata.requires_dist:
+        if package in expected:
+            expected.remove(package)
+        else:
+            missing.append(package)
+
+    assert len(missing) == 0, f"{missing} packages were not in expected {expected}"
+    assert len(expected) == 0, f"Wheel is missing Required-Dist: {expected}"
+
 
 def test_positive_with_groups():
     cwd = "positive_cases/happy_case_example"
@@ -23,6 +45,47 @@ def test_positive_with_groups():
     subprocess.check_call(
         ["poetry", "blixvalidatewheel", "--with-groups=integ,dev", "dist/blixexample-0.1.0-py3-none-any.whl"], cwd=cwd
     )
+
+    path = os.path.join(cwd, "dist/blixexample-0.1.0-py3-none-any.whl")
+    metadata = pkginfo.get_metadata(path)
+
+    # Validate wheel metadata
+    expected = {
+        'gunicorn (>=19.9.0,<20.0.0); extra == "gunicorn"',
+        "nemoize (>=0.1.0,<0.2.0)",
+        "numpy (==1.23.2)",
+        "pandas (==1.4.2)",
+        "python-dateutil (==2.8.2)",
+        "pytz (==2022.2.1)",
+        "six (==1.16.0)",
+        "attrs (==22.1.0)",
+        "flake8 (==4.0.1)",
+        "iniconfig (==1.1.1)",
+        "mccabe (==0.6.1)",
+        "packaging (==21.3)",
+        "pluggy (==1.0.0)",
+        "py (==1.11.0)",
+        "pycodestyle (==2.8.0)",
+        "pyflakes (==2.4.0)",
+        "pyparsing (==3.0.9)",
+        "pytest (==7.1.2)",
+        "tomli (==2.0.1)",
+    }
+
+    # These dependencies are only on Windows
+    if os.name == "nt":
+        expected.add("colorama (==0.4.5)")
+        expected.add("atomicwrites (==1.4.1)")
+
+    missing = []
+    for package in metadata.requires_dist:
+        if package in expected:
+            expected.remove(package)
+        else:
+            missing.append(package)
+
+    assert len(missing) == 0, f"{missing} packages were not in expected {expected}"
+    assert len(expected) == 0, f"Wheel is missing Required-Dist: {expected}"
 
 
 def test_positive_no_lock():
@@ -58,16 +121,28 @@ def test_positive_only_lock():
     # Validate wheel
     subprocess.check_call(["poetry", "blixvalidatewheel", "dist/blixexample-0.1.0-py3-none-any.whl"], cwd=cwd)
 
-    # Check if only fixed versions from lock file are set as dependencies
-    # e.g "pandas (==0.1.0,<0.2.0)"
-    package_regex = r".* \(\=\=.*\)"
-
     path = os.path.join(cwd, "dist/blixexample-0.1.0-py3-none-any.whl")
     metadata = pkginfo.get_metadata(path)
 
+    # Validate wheel metadata
+    expected = {
+        'gunicorn (==19.10.0); extra == "gunicorn"',
+        "nemoize (==0.1.0)",
+        "numpy (==1.22.4)",
+        "pandas (==1.4.2)",
+        "python-dateutil (==2.8.2)",
+        "pytz (==2022.1)",
+        "six (==1.16.0)",
+    }
+    missing = []
     for package in metadata.requires_dist:
-        parsed = re.search(package_regex, package)
-        assert parsed, f"Dependency {package} doesn't have fixed versions"
+        if package in expected:
+            expected.remove(package)
+        else:
+            missing.append(package)
+
+    assert len(missing) == 0, f"{missing} packages were not in expected {expected}"
+    assert len(expected) == 0, f"Wheel is missing Required-Dist: {expected}"
 
 
 def test_negative_incompatible_lock_options():

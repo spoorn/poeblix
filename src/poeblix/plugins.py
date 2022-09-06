@@ -79,7 +79,6 @@ class BlixWheelBuilder(WheelBuilder):
         if self._no_lock:
             logger.info("Excluding lock dependencies from wheel as --no-lock was specified")
         else:
-            from poetry.core.packages.dependency import Dependency
 
             logger.info("Adding dependencies from lock file to wheel build")
             # There is currently a bug with poetry 1.2.0b1 where the `category` field in poetry.lock all gets set to
@@ -108,17 +107,30 @@ class BlixWheelBuilder(WheelBuilder):
             # 'pyproject.toml' are also on the 'poetry.lock' file,
             # so no direct dependencies will be missed when the wheel
             # is built. Only package versions may vary.
+
+            in_extras = {}
             if self._only_lock:
+                # in_extras is backfilled in factory.py:
+                # https://github.com/python-poetry/poetry-core/blob/8097f67d0760bad5989219483c59339e1eed549c/src/poetry/core/factory.py#L176-L187
+                # keep a record of these so if we are building with only_lock enabled, we preserve the in_extras
+                for p in self._poetry.package.requires:
+                    in_extras[p.pretty_name] = p.in_extras
                 self._meta.requires_dist = []
 
             requires_dist = self._meta.requires_dist
             required_packages_names = [p.pretty_name for p in self._poetry.package.requires]
             logger.debug(f"Adding to Wheel Requires Dist: {ops}")
             for op in ops:
-                dependency_package = op.package
-                name = dependency_package.pretty_name
-                version = dependency_package.version
-                dep = Dependency(name, version).to_pep_508(False)
+                dep_pack = op.package
+                name = dep_pack.pretty_name
+                # Exclude python version constraints from the wheel file Required-Dist as default
+                # otherwise, most of the deps will have a verbose python version constraint with it
+                dep_pack.python_versions = "*"
+                dependency = dep_pack.to_dependency()
+                # Backfill in_extras
+                if self._only_lock and name in in_extras:
+                    dependency.in_extras.extend(in_extras[name])
+                dep = dependency.to_pep_508()
                 if self._only_lock or name not in required_packages_names:
                     requires_dist.append(dep)
 

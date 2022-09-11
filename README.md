@@ -28,7 +28,7 @@ as dependency but `poetry.lock` also says that `pandas` requires of
 `numpy-1.22.4`, poetry will build a package with `pandas` as dependency
 but not with `numpy`.
 
-Another problem that exits is that `pyproject.toml` can contain dependencies
+Another problem that exists is that `pyproject.toml` can contain dependencies
 with ranges of versions while `poetry.lock` has pinned versions. For instance,
 if `pyproject.toml` has as dependency `pandas = ">=1.3"` but `poetry.lock`
 sets `pandas-1.4.2`, poetry will build a package with the dependency
@@ -48,10 +48,11 @@ dependencies defined in the `poetry.lock`.
 
 ### Prerequisite
 
-Poetry Plugins are only supported in 1.2.0+ which, at the moment (5/29/22), can only be installed when using the [new poetry installer](https://python-poetry.org/docs/master/#installation), and updating to the preview version via
+Poetry Plugins are only supported in 1.2.0+ which, at the moment (5/29/22), can only be installed when using the [new poetry installer](https://python-poetry.org/docs/#installation)
 
 ```commandline
-poetry self update --preview
+# You can update poetry using
+poetry self update
 ```
 
 ## Installation
@@ -62,7 +63,7 @@ You can add the plugin via poetry's CLI:
 poetry plugin add poeblix
 ```
 
-Or install directly from source/wheel, then add with the same above command using the path to the built dist
+Or install directly from source/wheel, then add with the same above command using the absolute path to the built dist
 
 To update the plugin:
 
@@ -85,13 +86,13 @@ poetry blixbuild
 
 # Note: Options below are also available as part of the `blixvalidatewheel` and `blixvalidatedocker` commands
 
-# To disable using lock file for building wheel
+# To disable using lock file for building wheel and only use pyproject.toml
 poetry blixbuild --no-lock
 
 # Uses lock dependencies only which are pinned to exact versions, instead of pyproject.toml
 poetry blixbuild --only-lock
 
-# Specify additional dependency groups to include as RequiresDist in the wheel
+# Specify additional dependency groups to include as Requires-Dist in the wheel
 poetry blixbuild --with-groups=dev,integ,etc.
 ```
 

@@ -5,7 +5,7 @@ name: Continuous Tests (Python 3.9)
 # Controls when the workflow will run
 on:
   schedule:
-  - cron: "*/60 * * * *"
+  - cron: "*/120 * * * *"
   
   pull_request:
     branches:

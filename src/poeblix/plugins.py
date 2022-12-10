@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import os
+import shutil
 import zipfile
 from pathlib import Path
 from typing import Optional, List, Dict, cast
@@ -47,7 +49,7 @@ class BlixWheelBuilder(WheelBuilder):
         data_files: Optional[List[Dict]] = None,
         no_lock: bool = False,
         only_lock: bool = False,
-        with_groups: List[str] = None,
+        with_groups: Optional[List[str]] = None,
     ) -> None:
         super().__init__(poetry, executable=executable)  # type: ignore
         self._env = env
@@ -69,13 +71,29 @@ class BlixWheelBuilder(WheelBuilder):
 
         return abs_path
 
-    def _write_metadata(self, wheel: zipfile.ZipFile) -> None:
+    # Hijack _copy_dist_info and also write data folder that we wrote in prepare_metadata()
+    def _copy_dist_info(self, wheel: zipfile.ZipFile, source: Path) -> None:
+        super()._copy_dist_info(wheel, source)
+        source = source.parent / self.wheel_data_folder
+        wheel_data = Path(self.wheel_data_folder)
+        for file in source.glob("**/*"):
+            if not file.is_file():
+                continue
+
+            rel_path = file.relative_to(source)
+            target = wheel_data / rel_path
+            print(f"Copying file from {file} to wheel relative {target}")
+            self._add_file(wheel, file, target)
+
+    def prepare_metadata(self, metadata_directory: Path) -> Path:
         """
-        The below code before super()._write_metadata() takes locked dependencies from poetry.lock to add as
+        The below code before super().prepare_metadata() takes locked dependencies from poetry.lock to add as
         requirements in the wheel file we will build.
 
         This can be removed if poetry supports https://github.com/python-poetry/poetry/issues/2778.
         """
+        dist_info = metadata_directory / self.dist_info
+
         if self._no_lock:
             logger.info("Excluding lock dependencies from wheel as --no-lock was specified")
         else:
@@ -134,7 +152,7 @@ class BlixWheelBuilder(WheelBuilder):
                 if self._only_lock or name not in required_packages_names:
                     requires_dist.append(dep)
 
-        super()._write_metadata(wheel)
+        super().prepare_metadata(metadata_directory)
 
         # After writing the metadata, also write our custom data files to the wheel data folder
         if self._data_files:
@@ -156,11 +174,14 @@ class BlixWheelBuilder(WheelBuilder):
                 # Note: this assumes destination is suffixed with the directory separator "/"
                 for src in sources:
                     abs_path = self._get_abs_path(src)
-                    self._add_file(
-                        wheel,
-                        abs_path,
-                        Path.joinpath(Path(self.wheel_data_folder), "data", destination + abs_path.name),
+                    dest = Path.joinpath(
+                        metadata_directory, Path(self.wheel_data_folder), "data", destination + abs_path.name
                     )
+                    print(f"Copying data files from {abs_path} to {dest}")
+                    os.makedirs(dest.parent, exist_ok=True)
+                    shutil.copy(abs_path, dest)
+
+        return dist_info
 
 
 class BlixBuildCommand(EnvCommand):
@@ -197,7 +218,7 @@ class BlixBuildCommand(EnvCommand):
     # Pick up Poetry's WheelBuilder logger
     loggers = ["poetry.core.masonry.builders.wheel"]
 
-    def handle(self) -> None:
+    def handle(self) -> int:
         util.validate_options_mutually_exclusive(self.option, "no-lock", "only-lock")
         with_groups = []
         for group in self.option("with-groups"):
@@ -243,6 +264,8 @@ class BlixBuildCommand(EnvCommand):
             with_groups=with_groups,
         )
         builder.build()
+
+        return 0
 
 
 class BlixPlugin(ApplicationPlugin):

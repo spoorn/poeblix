@@ -83,7 +83,7 @@ class ValidateDockerPlugin(EnvCommand):
                         f"but docker container {cid} has {name}=={proc_version}"
                     )
 
-    def handle(self) -> None:
+    def handle(self) -> int:
         cid = self.argument("containerId")
         self.line(f"Fetching 'pip freeze' from docker image {cid} and validating against pyproject.toml/poetry.lock")
 
@@ -101,3 +101,5 @@ class ValidateDockerPlugin(EnvCommand):
             f"Validation success!  Docker image {cid} has consistent versions with dependencies specified "
             f"in this project"
         )
+
+        return 0

@@ -157,7 +157,7 @@ class ValidateWheelPlugin(EnvCommand):
                 f"Packages in poetry.lock are not present in the Wheel file: {sorted(list(leftover_lock_packages))}"
             )
 
-    def handle(self) -> None:
+    def handle(self) -> int:
         path = self.argument("wheelPath")
         if not Path(path).is_file():
             raise ValueError(f"Path [{path}] does not point to a valid file")
@@ -182,3 +182,5 @@ class ValidateWheelPlugin(EnvCommand):
             )
         self._validate_data_files(path)
         self.line("Validation succeeded!")
+
+        return 0

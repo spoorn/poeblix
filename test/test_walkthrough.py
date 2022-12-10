@@ -17,7 +17,7 @@ def test_positive_happy_case_example():
 
     # Validate wheel metadata
     expected = {
-        'gunicorn (>=19.9.0,<20.0.0); extra == "gunicorn"',
+        'gunicorn (>=19.9.0,<20.0.0) ; extra == "gunicorn"',
         "nemoize (>=0.1.0,<0.2.0)",
         "numpy (==1.23.2)",
         "pandas (==1.4.2)",
@@ -51,7 +51,7 @@ def test_positive_with_groups():
 
     # Validate wheel metadata
     expected = {
-        'gunicorn (>=19.9.0,<20.0.0); extra == "gunicorn"',
+        'gunicorn (>=19.9.0,<20.0.0) ; extra == "gunicorn"',
         "nemoize (>=0.1.0,<0.2.0)",
         "numpy (==1.23.2)",
         "pandas (==1.4.2)",
@@ -126,7 +126,7 @@ def test_positive_only_lock():
 
     # Validate wheel metadata
     expected = {
-        'gunicorn (==19.10.0); extra == "gunicorn"',
+        'gunicorn (==19.10.0) ; extra == "gunicorn"',
         "nemoize (==0.1.0)",
         "numpy (==1.22.4)",
         "pandas (==1.4.2)",

@@ -74,7 +74,7 @@ install_poetry() {
     exit 1
   fi
 
-  # Update to latest preview version as we require 1.2+ features that are not yet officially released
+  # Update to latest preview version to catch errors before release candidates
   poetry self update --preview
 }
 

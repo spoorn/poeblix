@@ -1,4 +1,4 @@
-from typing import Sequence, Callable, List
+from typing import Sequence, Callable, List, Optional
 
 from cleo.io.null_io import NullIO
 
@@ -14,7 +14,7 @@ from poetry.utils.env import Env
 
 
 def resolve_dependencies(
-    poetry: "Poetry", env: Env, locked_repository: Repository, with_groups: List[str] = None
+    poetry: "Poetry", env: Env, locked_repository: Repository, with_groups: Optional[List[str]] = None
 ) -> Sequence[Operation]:
     """
     This uses poetry's solver to resolve dependencies and filters out packages from the lock file which are not

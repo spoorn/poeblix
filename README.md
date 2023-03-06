@@ -60,6 +60,12 @@ poetry self update
 You can add the plugin via poetry's CLI:
 
 ```commandline
+poetry self add poeblix
+```
+
+_For <= 1.2_:
+
+```commandline
 poetry plugin add poeblix
 ```
 
@@ -69,10 +75,10 @@ To update the plugin:
 
 ```commandline
 # Update to latest
-poetry plugin add poeblix@latest
+poetry self add poeblix@latest
 
 # Update to specific version
-poetry plugin add poeblix==<version>
+poetry self add poeblix==<version>
 ```
 
 You should now see the blix* commands if you run `poetry list`

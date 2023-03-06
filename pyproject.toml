@@ -30,6 +30,9 @@ pkginfo = "*"
 pytest = "*"
 pytest-pspec = "*"
 pytest-cov = "*"
+# flake8 requires importlib_metadata < 5.0 https://github.com/python/importlib_metadata/issues/406
+# This breaks the Github Actions tests
+importlib-metadata = "<5.0"
 
 [tool.poetry.plugins."poetry.application.plugin"]
 # This must be the same as the package name due to https://github.com/python-poetry/poetry/pull/5412#issuecomment-1089978391

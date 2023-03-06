@@ -81,6 +81,8 @@ install_poetry() {
 uninstall_poetry() {
   # Clear pypi cache
   echo yes | poetry cache clear --all pypi || true
+  echo yes | poetry cache clear --all PyPi || true
+  echo yes | poetry cache clear --all _default_cache || true
 
   # Delete poetry global config to reset
   rm -rf ~/.config/pypoetry

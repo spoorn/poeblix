@@ -7,7 +7,7 @@ from packaging.tags import sys_tags  # noqa
 from poetry.core.poetry import Poetry
 from poetry.installation.operations.operation import Operation
 from poetry.puzzle import Solver
-from poetry.repositories import Pool
+from poetry.repositories import RepositoryPool
 from poetry.repositories import Repository
 from poetry.repositories.installed_repository import InstalledRepository
 from poetry.utils.env import Env
@@ -27,7 +27,7 @@ def resolve_dependencies(
         if not package.is_direct_origin() and not repo.has_package(package):
             repo.add_package(package)
 
-    pool = Pool(ignore_repository_names=True)
+    pool = RepositoryPool(ignore_repository_names=True)
     pool.add_repository(repo)
 
     # Run through poetry's dependency resolver.  Only uses the default/main `dependencies` in pyproject.toml, not

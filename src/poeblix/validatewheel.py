@@ -108,7 +108,8 @@ class ValidateWheelPlugin(EnvCommand):
         leftover_pyproject_packages = set([p.pretty_name for p in required_packages])
         for package in required_packages:
             name = package.pretty_name
-            if name in requires_dist:
+            # Defer to poetry.lock validation if dpeendency is a direct origin source such as git, local path, etc.
+            if not package.is_direct_origin() and name in requires_dist:
                 leftover_pyproject_packages.remove(name)
                 leftover_wheel_packages.discard(name)
                 # Parse constraint into an object using poetry's helper

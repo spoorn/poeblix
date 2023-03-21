@@ -50,7 +50,8 @@ class ValidateDockerPlugin(EnvCommand):
         required_packages = self.poetry.package.requires
         for package in required_packages:
             name = package.pretty_name
-            if name in docker_deps:
+            # Defer to poetry.lock validation if dpeendency is a direct origin source such as git, local path, etc.
+            if not package.is_direct_origin() and name in docker_deps:
                 if Package(name, docker_deps[name]).satisfies(package):
                     docker_deps.pop(name)
                 else:

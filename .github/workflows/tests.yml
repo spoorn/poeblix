@@ -47,12 +47,11 @@ jobs:
       #   connection timeout issues when downloading dependencies
       - name: Run a multi-line script
         run: |
+          python3 -m pip install --upgrade pip
           curl -sSL https://install.python-poetry.org | python3 -
           poetry self update --preview
           poetry config virtualenvs.create false
           cd $GITHUB_WORKSPACE
-          # https://github.com/python/importlib_metadata/issues/406
-          pip install importlib_metadata==4.13.0
           ./devtool bootstrap || ./devtool bootstrap
           poetry add poetry@latest --allow-prereleases
           ./devtool all || ./devtool all

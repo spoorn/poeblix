@@ -24,7 +24,9 @@ jobs:
     # Multiple python versions
     strategy:
       matrix:
-        python-version: [ '3.7', '3.8', '3.9' ]
+        # Removed tests on 3.7/3.8 as flake8 may be having problems on older python versions:
+        # https://github.com/python/importlib_metadata/issues/406
+        python-version: [ '3.9' ]
         
     name: Python ${{ matrix.python-version }} Tests
 

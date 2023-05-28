@@ -20,7 +20,7 @@ packages = [
 
 [tool.poetry.dependencies]
 # No longer run on Python 3.7/3.8: https://github.com/python-poetry/poetry/issues/1930#issuecomment-653906544
-python = "^3.9"
+python = "~3.9"
 poetry = {version = "^1.2|^1.2.0rc1|^1.3|^1.4|^1.5", allow-prereleases = true}
 
 [tool.poetry.group.dev.dependencies]

@@ -134,3 +134,4 @@ venv/
 linux_venv/
 
 !test/**/dist/
+test/bin

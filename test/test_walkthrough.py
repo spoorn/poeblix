@@ -17,13 +17,16 @@ def test_positive_happy_case_example():
 
     # Validate wheel metadata
     expected = {
+        "SQLAlchemy (==2.0.15)",
+        "greenlet (==2.0.2)",
         'gunicorn (>=19.9.0,<20.0.0) ; extra == "gunicorn"',
         "nemoize (>=0.1.0,<0.2.0)",
-        "numpy (==1.23.2)",
+        "numpy (==1.24.3)",
         "pandas (==1.4.2)",
         "python-dateutil (==2.8.2)",
-        "pytz (==2022.2.1)",
+        "pytz (==2023.3)",
         "six (==1.16.0)",
+        "typing-extensions (==4.6.2)",
     }
     missing = []
     for package in metadata.requires_dist:
@@ -51,30 +54,32 @@ def test_positive_with_groups():
 
     # Validate wheel metadata
     expected = {
+        "SQLAlchemy (==2.0.15)",
+        "greenlet (==2.0.2)",
         'gunicorn (>=19.9.0,<20.0.0) ; extra == "gunicorn"',
         "nemoize (>=0.1.0,<0.2.0)",
-        "numpy (==1.23.2)",
+        "numpy (==1.24.3)",
         "pandas (==1.4.2)",
         "python-dateutil (==2.8.2)",
-        "pytz (==2022.2.1)",
         "six (==1.16.0)",
-        "attrs (==22.1.0)",
+        "attrs (==23.1.0)",
         "flake8 (==4.0.1)",
-        "iniconfig (==1.1.1)",
+        "iniconfig (==2.0.0)",
         "mccabe (==0.6.1)",
-        "packaging (==21.3)",
+        "packaging (==23.1)",
         "pluggy (==1.0.0)",
         "py (==1.11.0)",
         "pycodestyle (==2.8.0)",
         "pyflakes (==2.4.0)",
-        "pyparsing (==3.0.9)",
         "pytest (==7.1.2)",
+        "pytz (==2023.3)",
         "tomli (==2.0.1)",
+        "typing-extensions (==4.6.2)",
     }
 
     # These dependencies are only on Windows
     if os.name == "nt":
-        expected.add("colorama (==0.4.5)")
+        expected.add("colorama (==0.4.6)")
         expected.add("atomicwrites (==1.4.1)")
 
     missing = []
@@ -126,13 +131,17 @@ def test_positive_only_lock():
 
     # Validate wheel metadata
     expected = {
+        "greenlet (==2.0.2)",
         'gunicorn (==19.10.0) ; extra == "gunicorn"',
         "nemoize (==0.1.0)",
-        "numpy (==1.22.4)",
-        "pandas (==1.4.2)",
+        "numpy (==1.24.3)",
+        "pandas (==2.0.1)",
         "python-dateutil (==2.8.2)",
-        "pytz (==2022.1)",
+        "pytz (==2023.3)",
+        "sqlalchemy (==2.0.15)",
         "six (==1.16.0)",
+        "typing-extensions (==4.6.2)",
+        "tzdata (==2023.3)",
     }
     missing = []
     for package in metadata.requires_dist:

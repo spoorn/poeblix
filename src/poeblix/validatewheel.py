@@ -105,10 +105,10 @@ class ValidateWheelPlugin(EnvCommand):
         # TODO: Only checks main group
         self.line("Validating against pyproject.toml...")
         required_packages = self.poetry.package.requires
-        leftover_pyproject_packages = set([p.pretty_name for p in required_packages])
+        leftover_pyproject_packages = set([p.pretty_name.lower() for p in required_packages])
         for package in required_packages:
-            name = package.pretty_name
-            # Defer to poetry.lock validation if dpeendency is a direct origin source such as git, local path, etc.
+            name = package.pretty_name.lower()
+            # Defer to poetry.lock validation if dependency is a direct origin source such as git, local path, etc.
             if not package.is_direct_origin() and name in requires_dist:
                 leftover_pyproject_packages.remove(name)
                 leftover_wheel_packages.discard(name)
@@ -141,7 +141,7 @@ class ValidateWheelPlugin(EnvCommand):
         leftover_lock_packages = set([p.package.pretty_name for p in ops])
         for op in ops:
             dependency_package = op.package
-            name = dependency_package.pretty_name
+            name = dependency_package.pretty_name.lower()
             if name in requires_dist:
                 leftover_lock_packages.remove(name)
                 leftover_wheel_packages.discard(name)
@@ -173,11 +173,13 @@ class ValidateWheelPlugin(EnvCommand):
                 raise ValueError(f"Could not parse Requires Dist package [{package}].  Please submit an Issue!")
             packages[parsed.group(1)] = parsed.group(2)
         self.line(f"Parsed Requires Dist: {packages}", verbosity=Verbosity.DEBUG)
+        # Case insensitive checking: https://github.com/spoorn/poeblix/issues/11
+        packages_lower = {key.lower(): val for key, val in packages.items()}
         # Keep track of wheel files we've scanned over to validate wheel does not contain extra dependencies not
         # specified in the project
-        leftover_wheel_packages = set(packages.keys())
-        self._validate_pyproject_toml(packages, leftover_wheel_packages)
-        self._validate_poetry_lock(packages, leftover_wheel_packages)
+        leftover_wheel_packages = set(packages_lower.keys())
+        self._validate_pyproject_toml(packages_lower, leftover_wheel_packages)
+        self._validate_poetry_lock(packages_lower, leftover_wheel_packages)
         if leftover_wheel_packages:
             raise RuntimeError(
                 f"Packages in Wheel file are not present in pyproject.toml/poetry.lock: {list(leftover_wheel_packages)}"

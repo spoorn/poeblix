@@ -10,6 +10,8 @@ nemoize = "^0.1.0"
 pandas = "1.4.2"
 # https://github.com/spoorn/poeblix/issues/8
 gunicorn = { version = "^19.9.0", optional = true }
+# Different casing between pyproject.toml and poetry.lock: https://github.com/spoorn/poeblix/issues/11
+SQLAlchemy = "2.0.15"
 
 [tool.poetry.extras]
 gunicorn = ["gunicorn"]

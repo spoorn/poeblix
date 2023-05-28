@@ -136,7 +136,7 @@ class BlixWheelBuilder(WheelBuilder):
                 self._meta.requires_dist = []
 
             requires_dist = self._meta.requires_dist
-            required_packages_names = [p.pretty_name for p in self._poetry.package.requires]
+            required_packages_names = [p.pretty_name.lower() for p in self._poetry.package.requires]
             logger.debug(f"Adding to Wheel Requires Dist: {ops}")
             for op in ops:
                 dep_pack = op.package
@@ -149,7 +149,7 @@ class BlixWheelBuilder(WheelBuilder):
                 if self._only_lock and name in in_extras:
                     dependency.in_extras.extend(in_extras[name])
                 dep = dependency.to_pep_508()
-                if self._only_lock or name not in required_packages_names:
+                if self._only_lock or name.lower() not in required_packages_names:
                     requires_dist.append(dep)
 
         super().prepare_metadata(metadata_directory)

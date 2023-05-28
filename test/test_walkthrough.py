@@ -62,16 +62,15 @@ def test_positive_with_groups():
         "pandas (==1.4.2)",
         "python-dateutil (==2.8.2)",
         "six (==1.16.0)",
-        "attrs (==23.1.0)",
         "flake8 (==4.0.1)",
         "iniconfig (==2.0.0)",
         "mccabe (==0.6.1)",
         "packaging (==23.1)",
         "pluggy (==1.0.0)",
-        "py (==1.11.0)",
         "pycodestyle (==2.8.0)",
         "pyflakes (==2.4.0)",
-        "pytest (==7.1.2)",
+        "exceptiongroup (==1.1.1)",
+        "pytest (==7.3.1)",
         "pytz (==2023.3)",
         "tomli (==2.0.1)",
         "typing-extensions (==4.6.2)",
@@ -80,7 +79,6 @@ def test_positive_with_groups():
     # These dependencies are only on Windows
     if os.name == "nt":
         expected.add("colorama (==0.4.6)")
-        expected.add("atomicwrites (==1.4.1)")
 
     missing = []
     for package in metadata.requires_dist:

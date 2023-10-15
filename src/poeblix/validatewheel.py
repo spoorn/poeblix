@@ -11,7 +11,10 @@ from cleo.io.outputs.output import Verbosity
 # For fixing https://github.com/python-poetry/poetry/issues/5216
 from packaging.tags import sys_tags  # noqa
 from poetry.console.commands.env_command import EnvCommand
-from poetry.core.semver.helpers import parse_constraint
+try:
+    from poetry.core.version.helpers import parse_constraint
+except ImportError:
+    from poetry.core.semver.helpers import parse_constraint
 
 # e.g. "nemoize (>=0.1.0,<0.2.0)"
 from tomlkit.exceptions import NonExistentKey

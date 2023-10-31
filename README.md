@@ -1,7 +1,7 @@
 # poeblix
 Poetry Plugin that adds various features that extend the `poetry` command such as building wheel files with locked dependencies, and validations of wheel/docker containers.
 
-Supports poetry versions `1.2+`
+Supports poetry versions `1.2+` (Note: if you are not using the latest version of poetry, you will need to check the Releases page to see which version of poeblix supports your version of poetry)
 
 # Overview
 These contain custom poetry plugins that enable functionality not available in the official distribution of poetry.  These include:

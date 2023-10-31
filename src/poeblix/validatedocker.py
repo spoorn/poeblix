@@ -1,5 +1,5 @@
 import subprocess
-from typing import List
+from typing import List, ClassVar
 
 from cleo.helpers import argument, option
 from cleo.io.inputs.option import Option
@@ -27,7 +27,7 @@ class ValidateDockerPlugin(EnvCommand):
 
     arguments = [argument("containerId", "Docker Container ID")]
 
-    options: List[Option] = [
+    options: ClassVar[List[Option]] = [
         option(
             "no-lock",
             None,

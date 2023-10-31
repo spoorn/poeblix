@@ -4,7 +4,7 @@ import os
 import shutil
 import zipfile
 from pathlib import Path
-from typing import Optional, List, Dict, cast
+from typing import Optional, List, Dict, cast, ClassVar
 
 from cleo.helpers import option
 from cleo.io.inputs.option import Option
@@ -194,7 +194,7 @@ class BlixBuildCommand(EnvCommand):
         "Builds a wheel package with custom data files mimicking data_files in setup.py, and uses the lock file"
     )
 
-    options: List[Option] = [
+    options: ClassVar[List[Option]] = [
         option(
             "no-lock",
             None,

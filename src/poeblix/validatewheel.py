@@ -1,6 +1,6 @@
 import re
 from pathlib import Path
-from typing import List, Dict
+from typing import List, Dict, ClassVar
 from zipfile import ZipFile
 
 import pkginfo
@@ -11,10 +11,11 @@ from cleo.io.outputs.output import Verbosity
 # For fixing https://github.com/python-poetry/poetry/issues/5216
 from packaging.tags import sys_tags  # noqa
 from poetry.console.commands.env_command import EnvCommand
+
 try:
     from poetry.core.version.helpers import parse_constraint
 except ImportError:
-    from poetry.core.semver.helpers import parse_constraint
+    from poetry.core.semver.helpers import parse_constraint  # type: ignore
 
 # e.g. "nemoize (>=0.1.0,<0.2.0)"
 from tomlkit.exceptions import NonExistentKey
@@ -40,7 +41,7 @@ class ValidateWheelPlugin(EnvCommand):
     arguments = [argument("wheelPath", "Wheel file path")]
 
     # TODO: Add groups to options
-    options: List[Option] = [
+    options: ClassVar[List[Option]] = [
         option(
             "no-lock",
             None,

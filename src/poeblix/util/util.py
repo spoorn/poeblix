@@ -4,8 +4,9 @@ from cleo.io.null_io import NullIO
 
 # For fixing https://github.com/python-poetry/poetry/issues/5216
 from packaging.tags import sys_tags  # noqa
-from poetry.core.poetry import Poetry
+from poetry.core.poetry import Poetry as CorePoetry
 from poetry.installation.operations.operation import Operation
+from poetry.poetry import Poetry
 from poetry.puzzle import Solver
 from poetry.repositories import RepositoryPool
 from poetry.repositories import Repository
@@ -14,7 +15,7 @@ from poetry.utils.env import Env
 
 
 def resolve_dependencies(
-    poetry: "Poetry", env: Env, locked_repository: Repository, with_groups: Optional[List[str]] = None
+    poetry: "CorePoetry", env: Env, locked_repository: Repository, with_groups: Optional[List[str]] = None
 ) -> Sequence[Operation]:
     """
     This uses poetry's solver to resolve dependencies and filters out packages from the lock file which are not
@@ -27,7 +28,10 @@ def resolve_dependencies(
         if not package.is_direct_origin() and not repo.has_package(package):
             repo.add_package(package)
 
-    pool = RepositoryPool(ignore_repository_names=True)
+    base_repositories = None
+    if isinstance(poetry, Poetry):
+        base_repositories = poetry.pool.all_repositories
+    pool = RepositoryPool(repositories=base_repositories, ignore_repository_names=True)
     pool.add_repository(repo)
 
     # Run through poetry's dependency resolver.  Only uses the default/main `dependencies` in pyproject.toml, not

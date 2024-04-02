@@ -1,5 +1,6 @@
 import os.path
 import subprocess
+import sys
 
 import pkginfo
 
@@ -69,12 +70,15 @@ def test_positive_with_groups():
         "pluggy (==1.0.0)",
         "pycodestyle (==2.8.0)",
         "pyflakes (==2.4.0)",
-        "exceptiongroup (==1.1.1)",
         "pytest (==7.3.1)",
         "pytz (==2023.3)",
-        "tomli (==2.0.1)",
         "typing-extensions (==4.6.2)",
     }
+
+    # These dependencies are only on Python < 3.11
+    if sys.version_info.major == 3 and sys.version_info.minor < 11:
+        expected.add("exceptiongroup (==1.1.1)")
+        expected.add("tomli (==2.0.1)")
 
     # These dependencies are only on Windows
     if os.name == "nt":

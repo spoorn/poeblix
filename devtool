@@ -41,8 +41,8 @@ test() {
   PY_VERSION=$(python -c 'import sys; print(str(sys.version_info[0]) + "." + str(sys.version_info[1]))')
 
   # Walkthrough tests
-  if [[ $PY_VERSION == "3.9" ]]; then
-    echo "== Python 3.9 Walkthrough Tests =="
+  if [[ $PY_VERSION =~ ^3\.(9|10|11)$ ]]; then
+    echo "== Python >= 3.9 Walkthrough Tests =="
     cd test && pytest --pspec test_walkthrough.py ; cd -
   elif [[ $PY_VERSION == "3.8" ]]; then
     echo "== Python 3.8 Walkthrough Tests =="

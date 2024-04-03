@@ -1,3 +1,5 @@
+# Notice: this project is no longer actively updated to keep up with Poetry releases. Feel free to fork the repo, or submit PRs which will still be merged
+
 # poeblix
 Poetry Plugin that adds various features that extend the `poetry` command such as building wheel files with locked dependencies, and validations of wheel/docker containers.
 

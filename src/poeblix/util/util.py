@@ -31,7 +31,7 @@ def resolve_dependencies(
     base_repositories = None
     if isinstance(poetry, Poetry):
         base_repositories = poetry.pool.all_repositories
-    pool = RepositoryPool(repositories=base_repositories, ignore_repository_names=True)
+    pool = RepositoryPool(repositories=base_repositories)
     pool.add_repository(repo)
 
     # Run through poetry's dependency resolver.  Only uses the default/main `dependencies` in pyproject.toml, not
